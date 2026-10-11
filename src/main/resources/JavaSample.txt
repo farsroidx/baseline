@@ -1,0 +1,634 @@
+package ir.farsroidx.baseline.samples;
+
+/**
+ * Java formatter fixture with visibility/static/type groups and varied identifier lengths.
+ * <p>
+ * Constructor overloads exercise independent assignment runs while preserving parameter order.
+ * Values are illustrative. Some methods write diagnostic messages to standard output.
+ */
+public class JavaSample {
+
+    /**
+     * int field fixture with a 33-character name for group ordering and alignment.
+     */
+    public static final int MAXIMUM_SUPPORTED_RETRY_THRESHOLD = 1;
+    /**
+     * int field fixture with a 32-character name for group ordering and alignment.
+     */
+    public static final int MAXIMUM_SUPPORTED_RETRY_ATTEMPTS  = 5;
+    /**
+     * int field fixture with a 32-character name for group ordering and alignment.
+     */
+    public static final int MAXIMUM_SUPPORTED_RETRY_CAPACITY  = 1;
+    /**
+     * int field fixture with a 30-character name for group ordering and alignment.
+     */
+    public static final int MAXIMUM_SUPPORTED_MAX_ATTEMPTS    = 5;
+    /**
+     * int field fixture with a 29-character name for group ordering and alignment.
+     */
+    public static final int MAXIMUM_SUPPORTED_RETRY_LIMIT     = 1;
+
+    /**
+     * String field fixture with a 28-character name for group ordering and alignment.
+     */
+    public static final String APPLICATION_IDENTIFIER_VALUE = "sample";
+    /**
+     * String field fixture with a 28-character name for group ordering and alignment.
+     */
+    public static final String APPLICATION_IDENTIFIER_LABEL = "sample";
+    /**
+     * String field fixture with a 27-character name for group ordering and alignment.
+     */
+    public static final String APPLICATION_IDENTIFIER_TEST  = "baseline";
+    /**
+     * String field fixture with a 27-character name for group ordering and alignment.
+     */
+    public static final String APPLICATION_IDENTIFIER_TEXT  = "sample";
+    /**
+     * String field fixture with a 22-character name for group ordering and alignment.
+     */
+    public static final String APPLICATION_IDENTIFIER       = "baseline";
+
+    /**
+     * int field fixture with a 43-character name for group ordering and alignment.
+     */
+    protected static final int DEFAULT_CONNECTION_TIMEOUT_MAX_MILLISECONDS = 1;
+    /**
+     * int field fixture with a 39-character name for group ordering and alignment.
+     */
+    protected static final int DEFAULT_CONNECTION_TIMEOUT_MILLISECONDS     = 1000;
+    /**
+     * int field fixture with a 39-character name for group ordering and alignment.
+     */
+    protected static final int DEFAULT_CONNECTION_TIMEOUT_MICROSECONDS     = 1;
+    /**
+     * int field fixture with a 34-character name for group ordering and alignment.
+     */
+    protected static final int DEFAULT_CONNECTION_TIMEOUT_SECONDS          = 1;
+    /**
+     * int field fixture with a 30-character name for group ordering and alignment.
+     */
+    protected static final int DEFAULT_CONNECTION_TIMEOUT_MAX              = 1000;
+
+    /**
+     * String field fixture with a 42-character name for group ordering and alignment.
+     */
+    private static final String INTERNAL_CONFIGURATION_STORAGE_KEY_VERSION = "sample";
+    /**
+     * String field fixture with a 40-character name for group ordering and alignment.
+     */
+    private static final String INTERNAL_CONFIGURATION_STORAGE_KEY_LABEL   = "sample";
+    /**
+     * String field fixture with a 40-character name for group ordering and alignment.
+     */
+    private static final String INTERNAL_CONFIGURATION_STORAGE_KEY_VALUE   = "sample";
+    /**
+     * String field fixture with a 39-character name for group ordering and alignment.
+     */
+    private static final String INTERNAL_CONFIGURATION_STORAGE_KEY_NAME    = "sample";
+    /**
+     * String field fixture with a 34-character name for group ordering and alignment.
+     */
+    private static final String INTERNAL_CONFIGURATION_STORAGE_KEY         = "storage";
+
+    /**
+     * String field fixture with a 36-character name for group ordering and alignment.
+     */
+    public String extraordinarilyLongPublicDisplayName = "display";
+    /**
+     * String field fixture with a 32-character name for group ordering and alignment.
+     */
+    public String extendedPublicDisplayDescription     = "sample";
+    /**
+     * String field fixture with a 28-character name for group ordering and alignment.
+     */
+    public String longPublicDisplayDescription         = "sample";
+    /**
+     * String field fixture with a 24-character name for group ordering and alignment.
+     */
+    public String publicDisplayDescription             = "sample";
+    /**
+     * String field fixture with a 20-character name for group ordering and alignment.
+     */
+    public String publicDisplayCaption                 = "sample";
+    /**
+     * String field fixture with a 18-character name for group ordering and alignment.
+     */
+    public String publicDisplayTitle                   = "sample";
+    /**
+     * String field fixture with a 17-character name for group ordering and alignment.
+     */
+    public String publicDisplayName                    = "sample";
+    /**
+     * String field fixture with a 11-character name for group ordering and alignment.
+     */
+    public String displayName                          = "sample";
+    /**
+     * String field fixture with a 7-character name for group ordering and alignment.
+     */
+    public String caption                              = "sample";
+    /**
+     * String field fixture with a 5-character name for group ordering and alignment.
+     */
+    public String alias                                = "sample";
+    /**
+     * String field fixture with a 4-character name for group ordering and alignment.
+     */
+    public String name                                 = "sample";
+
+    /**
+     * boolean field fixture with a 23-character name for group ordering and alignment.
+     */
+    public boolean publiclyAvailableStatus = true;
+    /**
+     * boolean field fixture with a 22-character name for group ordering and alignment.
+     */
+    public boolean publiclyAvailableToday  = true;
+    /**
+     * boolean field fixture with a 21-character name for group ordering and alignment.
+     */
+    public boolean publiclyAvailableHere   = true;
+    /**
+     * boolean field fixture with a 20-character name for group ordering and alignment.
+     */
+    public boolean publiclyAvailableNow    = true;
+    /**
+     * boolean field fixture with a 17-character name for group ordering and alignment.
+     */
+    public boolean publiclyAvailable       = true;
+
+    /**
+     * int field fixture with a 23-character name for group ordering and alignment.
+     */
+    public int publicRetryAttemptCount = 3;
+    /**
+     * int field fixture with a 23-character name for group ordering and alignment.
+     */
+    public int publicRetryAttemptLimit = 1;
+    /**
+     * int field fixture with a 19-character name for group ordering and alignment.
+     */
+    public int publicRetryAttempts     = 1;
+    /**
+     * int field fixture with a 16-character name for group ordering and alignment.
+     */
+    public int publicRetryCount        = 1;
+    /**
+     * int field fixture with a 16-character name for group ordering and alignment.
+     */
+    public int publicRetryLimit        = 1;
+
+    /**
+     * String field fixture with a 27-character name for group ordering and alignment.
+     */
+    protected String protectedSessionDescription = "session";
+    /**
+     * String field fixture with a 24-character name for group ordering and alignment.
+     */
+    protected String activeSessionDescription    = "sample";
+    /**
+     * String field fixture with a 18-character name for group ordering and alignment.
+     */
+    protected String sessionDescription          = "sample";
+    /**
+     * String field fixture with a 12-character name for group ordering and alignment.
+     */
+    protected String sessionLabel                = "sample";
+    /**
+     * String field fixture with a 10-character name for group ordering and alignment.
+     */
+    protected String sessionKey                  = "sample";
+    /**
+     * String field fixture with a 7-character name for group ordering and alignment.
+     */
+    protected String keyName                     = "sample";
+    /**
+     * String field fixture with a 5-character name for group ordering and alignment.
+     */
+    protected String token                       = "sample";
+    /**
+     * String field fixture with a 3-character name for group ordering and alignment.
+     */
+    protected String key                         = "key";
+
+    /**
+     * int field fixture with a 14-character name for group ordering and alignment.
+     */
+    protected int processedCount = 1;
+    /**
+     * int field fixture with a 12-character name for group ordering and alignment.
+     */
+    protected int sessionCount   = 1;
+    /**
+     * int field fixture with a 11-character name for group ordering and alignment.
+     */
+    protected int activeCount    = 1;
+    /**
+     * int field fixture with a 10-character name for group ordering and alignment.
+     */
+    protected int retryCount     = 1;
+    /**
+     * int field fixture with a 5-character name for group ordering and alignment.
+     */
+    protected int count          = 0;
+
+    /**
+     * int field fixture with a 37-character name for group ordering and alignment.
+     */
+    private int internalConnectionTimeoutMilliseconds = 1000;
+    /**
+     * int field fixture with a 32-character name for group ordering and alignment.
+     */
+    private int internalConnectionTimeoutSeconds      = 1;
+    /**
+     * int field fixture with a 29-character name for group ordering and alignment.
+     */
+    private int connectionTimeoutMilliseconds         = 1;
+    /**
+     * int field fixture with a 25-character name for group ordering and alignment.
+     */
+    private int connectionTimeoutDuration             = 1;
+    /**
+     * int field fixture with a 22-character name for group ordering and alignment.
+     */
+    private int connectionTimeoutLimit                = 1;
+    /**
+     * int field fixture with a 20-character name for group ordering and alignment.
+     */
+    private int connectionBufferSize                  = 1;
+    /**
+     * int field fixture with a 17-character name for group ordering and alignment.
+     */
+    private int defaultBufferSize                     = 1;
+    /**
+     * int field fixture with a 10-character name for group ordering and alignment.
+     */
+    private int bufferSize                            = 1;
+    /**
+     * int field fixture with a 9-character name for group ordering and alignment.
+     */
+    private int entrySize                             = 1;
+    /**
+     * int field fixture with a 4-character name for group ordering and alignment.
+     */
+    private int size                                  = 1;
+
+    /**
+     * String field fixture with a 31-character name for group ordering and alignment.
+     */
+    private String privateConfigurationDescription = "configuration";
+    /**
+     * String field fixture with a 27-character name for group ordering and alignment.
+     */
+    private String privateConfigurationDetails     = "sample";
+    /**
+     * String field fixture with a 25-character name for group ordering and alignment.
+     */
+    private String privateConfigurationLabel       = "sample";
+    /**
+     * String field fixture with a 23-character name for group ordering and alignment.
+     */
+    private String privateConfigurationKey         = "sample";
+    /**
+     * String field fixture with a 20-character name for group ordering and alignment.
+     */
+    private String configurationDetails            = "sample";
+    /**
+     * String field fixture with a 16-character name for group ordering and alignment.
+     */
+    private String configurationKey                = "sample";
+    /**
+     * String field fixture with a 15-character name for group ordering and alignment.
+     */
+    private String configurationId                 = "sample";
+    /**
+     * String field fixture with a 9-character name for group ordering and alignment.
+     */
+    private String configKey                       = "sample";
+    /**
+     * String field fixture with a 8-character name for group ordering and alignment.
+     */
+    private String configId                        = "sample";
+    /**
+     * String field fixture with a 5-character name for group ordering and alignment.
+     */
+    private String keyId                           = "sample";
+    /**
+     * String field fixture with a 3-character name for group ordering and alignment.
+     */
+    private String tag                             = "sample";
+    /**
+     * String field fixture with a 2-character name for group ordering and alignment.
+     */
+    private String id                              = "default";
+
+    /**
+     * boolean field fixture with a 13-character name for group ordering and alignment.
+     */
+    private boolean enabledForUse = true;
+    /**
+     * boolean field fixture with a 12-character name for group ordering and alignment.
+     */
+    private boolean enabledToday  = true;
+    /**
+     * boolean field fixture with a 11-character name for group ordering and alignment.
+     */
+    private boolean enabledHere   = true;
+    /**
+     * boolean field fixture with a 10-character name for group ordering and alignment.
+     */
+    private boolean enabledNow    = true;
+    /**
+     * boolean field fixture with a 7-character name for group ordering and alignment.
+     */
+    private boolean enabled       = true;
+
+    /**
+     * Creates a fixture and assigns the supplied sample values; unspecified fields keep their initializers.
+     */
+    public JavaSample() {
+
+        super();
+
+        this.id = "default";
+        this.privateConfigurationDescription = "configuration";
+
+    }
+
+    /**
+     * Creates a fixture and assigns the supplied sample values; unspecified fields keep their initializers.
+     *
+     * @param id sample identifier assigned to the instance
+     */
+    public JavaSample(String id) {
+
+        super();
+
+        this.id = id;
+        this.privateConfigurationDescription = "configuration";
+
+    }
+
+    /**
+     * Creates a fixture and assigns the supplied sample values; unspecified fields keep their initializers.
+     *
+     * @param id                              sample identifier assigned to the instance
+     * @param privateConfigurationDescription sample configuration description
+     */
+    public JavaSample(String id, String privateConfigurationDescription) {
+
+        super();
+
+        this.id = id;
+        this.privateConfigurationDescription = privateConfigurationDescription;
+
+    }
+
+    /**
+     * Creates a fixture and assigns the supplied sample values; unspecified fields keep their initializers.
+     *
+     * @param id                              sample identifier assigned to the instance
+     * @param privateConfigurationDescription sample configuration description
+     * @param size                            sample size assigned without validation
+     */
+    public JavaSample(String id, String privateConfigurationDescription, int size) {
+
+        super();
+
+        this.id = id;
+        this.privateConfigurationDescription = privateConfigurationDescription;
+
+        this.size = size;
+
+    }
+
+    /**
+     * Creates a fixture and assigns the supplied sample values; unspecified fields keep their initializers.
+     *
+     * @param id                                    sample identifier assigned to the instance
+     * @param privateConfigurationDescription       sample configuration description
+     * @param size                                  sample size assigned without validation
+     * @param internalConnectionTimeoutMilliseconds sample timeout value in milliseconds
+     */
+    public JavaSample(
+        String id,
+        String privateConfigurationDescription,
+        int size,
+        int internalConnectionTimeoutMilliseconds
+    ) {
+
+        super();
+
+        this.id = id;
+        this.privateConfigurationDescription = privateConfigurationDescription;
+
+        this.size = size;
+        this.internalConnectionTimeoutMilliseconds = internalConnectionTimeoutMilliseconds;
+
+    }
+
+    /**
+     * Creates a fixture and assigns the supplied sample values; unspecified fields keep their initializers.
+     *
+     * @param id                                    sample identifier assigned to the instance
+     * @param privateConfigurationDescription       sample configuration description
+     * @param size                                  sample size assigned without validation
+     * @param internalConnectionTimeoutMilliseconds sample timeout value in milliseconds
+     * @param enabled                               sample enabled flag
+     */
+    public JavaSample(
+        String id,
+        String privateConfigurationDescription,
+        int size,
+        int internalConnectionTimeoutMilliseconds,
+        boolean enabled
+    ) {
+
+        super();
+
+        this.id = id;
+        this.privateConfigurationDescription = privateConfigurationDescription;
+
+        this.size = size;
+        this.internalConnectionTimeoutMilliseconds = internalConnectionTimeoutMilliseconds;
+
+        this.enabled = enabled;
+
+    }
+
+    /**
+     * Creates a fixture and assigns the supplied sample values; unspecified fields keep their initializers.
+     *
+     * @param id                                    sample identifier assigned to the instance
+     * @param privateConfigurationDescription       sample configuration description
+     * @param size                                  sample size assigned without validation
+     * @param internalConnectionTimeoutMilliseconds sample timeout value in milliseconds
+     * @param enabled                               sample enabled flag
+     * @param visible                               sample public availability flag
+     */
+    public JavaSample(
+        @Deprecated
+        String id,
+        String privateConfigurationDescription,
+        int size,
+        int internalConnectionTimeoutMilliseconds,
+        boolean enabled,
+        boolean visible
+    ) {
+
+        this(id, privateConfigurationDescription, size, internalConnectionTimeoutMilliseconds, enabled);
+
+        this.publiclyAvailable = visible;
+
+    }
+
+    /**
+     * Concatenates prefix and suffix to demonstrate annotated method parameters.
+     *
+     * @param prefix first string segment
+     * @param suffix second string segment
+     * @return concatenated string
+     * @deprecated Retained as an annotation-layout fixture; no runtime replacement is required.
+     */
+    @Deprecated
+    public String renderAnnotated(
+        @Deprecated
+        String prefix,
+        String suffix
+    ) {
+
+        return prefix + suffix;
+
+    }
+
+    /**
+     * Returns a label for known sample codes, or "other" for an unmatched code.
+     *
+     * @param code numeric sample code to map to a label
+     * @return selected sample label
+     */
+    public String selectLabel(int code) {
+
+        switch (code) {
+
+            case 1    :
+
+            return "first";
+
+            case 22   :
+
+            return "second";
+
+            case 333  :
+
+            return "third";
+
+            case 4444 :
+
+            return "fourth";
+
+            default   :
+
+            return "other";
+
+        }
+    }
+
+    /**
+     * Returns the prefix followed by the instance identifier.
+     *
+     * @param prefix first string segment
+     * @return concatenated string
+     */
+    public String describe(String prefix) {
+
+        String description = prefix + id;
+
+        return description;
+
+    }
+
+    /**
+     * Returns the sum of the two integers.
+     *
+     * @param first  integer operand added to the result
+     * @param second integer operand added to the result
+     * @return sum of the operands
+     */
+    public int calculate(int first, int second) {
+
+        int sum = first + second;
+
+        return sum;
+
+    }
+
+    /**
+     * Concatenates three strings in their supplied order.
+     *
+     * @param first  string segment concatenated in the supplied order
+     * @param second string segment concatenated in the supplied order
+     * @param third  string segment concatenated in the supplied order
+     * @return concatenated string
+     */
+    public String combine(String first, String second, String third) {
+
+        return first + second + third;
+
+    }
+
+    /**
+     * Returns the sum of four integers.
+     *
+     * @param first  integer operand added to the result
+     * @param second integer operand added to the result
+     * @param third  integer operand added to the result
+     * @param fourth integer operand added to the result
+     * @return sum of the operands
+     */
+    public int total(int first, int second, int third, int fourth) {
+
+        return first + second + third + fourth;
+
+    }
+
+    /**
+     * Concatenates five description segments and writes a diagnostic message to standard output.
+     *
+     * @param extremelyLongFirstDescription  string segment concatenated in the supplied order
+     * @param extremelyLongSecondDescription string segment concatenated in the supplied order
+     * @param extremelyLongThirdDescription  string segment concatenated in the supplied order
+     * @param extremelyLongFourthDescription string segment concatenated in the supplied order
+     * @param extremelyLongFifthDescription  string segment concatenated in the supplied order
+     * @return concatenated string
+     */
+    public String buildDescription(
+        String extremelyLongFirstDescription,
+        String extremelyLongSecondDescription,
+        String extremelyLongThirdDescription,
+        String extremelyLongFourthDescription,
+        String extremelyLongFifthDescription
+    ) {
+
+        String result = extremelyLongFirstDescription + extremelyLongSecondDescription;
+
+        System.out.println( "An unrelated diagnostic message." );
+
+        return result + extremelyLongThirdDescription + extremelyLongFourthDescription + extremelyLongFifthDescription;
+
+    }
+
+    /**
+     * Creates a sample instance and prints its prefixed identifier to standard output.
+     *
+     * @param args command-line arguments, unused by this demonstration
+     */
+    public static void main(String[] args) {
+
+        JavaSample sample = new JavaSample("identifier", "configuration", 1, 1000, true);
+
+        System.out.println( sample.describe( "sample: " ) );
+
+    }
+}
