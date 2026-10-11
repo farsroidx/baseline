@@ -1,0 +1,83 @@
+<idea-plugin>
+
+    <name>Baseline</name>
+
+    <version>1.0.0</version>
+
+    <id>ir.farsroidx.baseline</id>
+
+    <vendor email="mohammadali.riazati@yahoo.com" url="https://github.com/farsroidx">Mohammad ali Riazati</vendor>
+
+    <description><![CDATA[
+        <p>
+            <strong>Baseline</strong> provides project-configurable Java and Kotlin formatting
+            through IntelliJ IDEA's standard <strong>Reformat Code</strong> command.
+        </p>
+        <h3>Formatting</h3>
+        <ul>
+            <li>Separate static and instance fields; group by visibility and type.</li>
+            <li>Arrange independent fields from longest to shortest name and align initializer equals signs.</li>
+            <li>Arrange eligible constructor assignments and local declarations from shortest to longest name.</li>
+            <li>Format fluent chains, parameter lists and packed call arguments using the language right margin.</li>
+            <li>Control block, method, member, statement, lambda, annotation and file-section spacing.</li>
+            <li>Format logical conditions, ternaries, control headers, case separators and Kotlin Elvis fallbacks.</li>
+        </ul>
+        <h3>Project preferences and sharing</h3>
+        <p>
+            Open <strong>Settings / Editor / Baseline</strong> to configure 50 Boolean preferences.
+            All defaults preserve the phase-one layout. Use <strong>Export settings</strong> and
+            <strong>Import settings</strong> to share a portable XML profile with your team.
+            Imported preferences are saved only after Apply or OK.
+        </p>
+        <h3>Usage and safeguards</h3>
+        <p>
+            Reformat the whole file without selecting a fragment. For formatting on save, enable
+            <strong>Tools / Actions on Save / Reformat code / Whole file</strong> for Java and Kotlin.
+            Baseline runs after native formatting; it does not replace the language formatting model.
+        </p>
+        <p>
+            Parameter, argument and method declaration order are preserved. Rearrangement is limited
+            to eligible independent runs and stops at semantic barriers. Partial selections, files
+            with syntax errors and enabled formatter-off regions retain native formatting.
+            Native commit checks format changed code only; mandatory pre-push enforcement requires
+            a separate integration. Profiles share Baseline preferences, not the IDE code-style scheme.
+        </p>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>org.jetbrains.kotlin</depends>
+
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+
+        <supportsKotlinPluginMode supportsK1="true" supportsK2="true"/>
+
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij">
+
+        <projectConfigurable parentId="editor" id="ir.farsroidx.baseline.settings"
+                             displayName="Baseline"
+                             instance="ir.farsroidx.baseline.settings.BaselineConfigurable"/>
+
+        <postFormatProcessor implementation="ir.farsroidx.baseline.integration.FormatProcessor"/>
+
+    </extensions>
+
+    <change-notes><![CDATA[
+        <h3>1.0.0 - Initial stable release</h3>
+        <ul>
+            <li>Java and Kotlin formatting integrated with the native whole-file Reformat Code pipeline.</li>
+            <li>50 project-specific Boolean preferences with Apply, Reset and Restore defaults.</li>
+            <li>Portable XML export/import, complete validation and non-destructive file replacement.</li>
+            <li>Static/visibility/type field groups, descending name cascades and initializer alignment.</li>
+            <li>Conservative constructor grouping and ascending name cascades with semantic barriers.</li>
+            <li>Margin-aware declaration/call wrapping, fluent chains and packed argument rows.</li>
+            <li>Configurable block, statement, annotation, lambda, condition and case layout.</li>
+            <li>Parameter/argument order, literals and comments protected by PSI-based processing.</li>
+            <li>Documented settings, architecture, save/commit integration and profile sharing.</li>
+            <li>Java/Kotlin examples distributed as text resources instead of compiled sample classes.</li>
+        </ul>
+    ]]></change-notes>
+
+</idea-plugin>

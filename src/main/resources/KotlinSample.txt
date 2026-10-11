@@ -1,0 +1,467 @@
+package ir.farsroidx.baseline.samples
+
+/**
+ * Exercises Kotlin field visibility, type groups, constructor overloads and varied parameter lengths.
+ *
+ * Values and diagnostic output are illustrative; this class is a formatter fixture rather
+ * than a production model.
+ */
+class KotlinSample {
+
+    /** String field fixture with a 36-character name for group ordering and alignment. */
+    public var extraordinarilyLongPublicDisplayName: String = "display"
+    /** String field fixture with a 32-character name for group ordering and alignment. */
+    public var extendedPublicDisplayDescription: String     = "sample"
+    /** String field fixture with a 28-character name for group ordering and alignment. */
+    public var longPublicDisplayDescription: String         = "sample"
+    /** String field fixture with a 24-character name for group ordering and alignment. */
+    public var publicDisplayDescription: String             = "sample"
+    /** String field fixture with a 20-character name for group ordering and alignment. */
+    public var publicDisplayCaption: String                 = "sample"
+    /** String field fixture with a 18-character name for group ordering and alignment. */
+    public var publicDisplayTitle: String                   = "sample"
+    /** String field fixture with a 17-character name for group ordering and alignment. */
+    public var publicDisplayName: String                    = "sample"
+    /** String field fixture with a 11-character name for group ordering and alignment. */
+    public var displayName: String                          = "sample"
+    /** String field fixture with a 7-character name for group ordering and alignment. */
+    public var caption: String                              = "sample"
+    /** String field fixture with a 5-character name for group ordering and alignment. */
+    public var alias: String                                = "sample"
+    /** String field fixture with a 4-character name for group ordering and alignment. */
+    public var name: String                                 = "sample"
+
+    /** Boolean field fixture with a 23-character name for group ordering and alignment. */
+    public var publiclyAvailableStatus: Boolean = true
+    /** Boolean field fixture with a 22-character name for group ordering and alignment. */
+    public var publiclyAvailableToday: Boolean  = true
+    /** Boolean field fixture with a 21-character name for group ordering and alignment. */
+    public var publiclyAvailableHere: Boolean   = true
+    /** Boolean field fixture with a 20-character name for group ordering and alignment. */
+    public var publiclyAvailableNow: Boolean    = true
+    /** Boolean field fixture with a 17-character name for group ordering and alignment. */
+    public var publiclyAvailable: Boolean       = true
+
+    /** Int field fixture with a 23-character name for group ordering and alignment. */
+    public var publicRetryAttemptCount: Int = 3
+    /** Int field fixture with a 23-character name for group ordering and alignment. */
+    public var publicRetryAttemptLimit: Int = 1
+    /** Int field fixture with a 19-character name for group ordering and alignment. */
+    public var publicRetryAttempts: Int     = 1
+    /** Int field fixture with a 16-character name for group ordering and alignment. */
+    public var publicRetryCount: Int        = 1
+    /** Int field fixture with a 16-character name for group ordering and alignment. */
+    public var publicRetryLimit: Int        = 1
+
+    /** String field fixture with a 27-character name for group ordering and alignment. */
+    protected var protectedSessionDescription: String = "session"
+    /** String field fixture with a 24-character name for group ordering and alignment. */
+    protected var activeSessionDescription: String    = "sample"
+    /** String field fixture with a 18-character name for group ordering and alignment. */
+    protected var sessionDescription: String          = "sample"
+    /** String field fixture with a 12-character name for group ordering and alignment. */
+    protected var sessionLabel: String                = "sample"
+    /** String field fixture with a 10-character name for group ordering and alignment. */
+    protected var sessionKey: String                  = "sample"
+    /** String field fixture with a 7-character name for group ordering and alignment. */
+    protected var keyName: String                     = "sample"
+    /** String field fixture with a 5-character name for group ordering and alignment. */
+    protected var token: String                       = "sample"
+    /** String field fixture with a 3-character name for group ordering and alignment. */
+    protected var key: String                         = "key"
+
+    /** Int field fixture with a 14-character name for group ordering and alignment. */
+    protected var processedCount: Int = 1
+    /** Int field fixture with a 12-character name for group ordering and alignment. */
+    protected var sessionCount: Int   = 1
+    /** Int field fixture with a 11-character name for group ordering and alignment. */
+    protected var activeCount: Int    = 1
+    /** Int field fixture with a 10-character name for group ordering and alignment. */
+    protected var retryCount: Int     = 1
+    /** Int field fixture with a 5-character name for group ordering and alignment. */
+    protected var count: Int          = 0
+
+    /** Int field fixture with a 37-character name for group ordering and alignment. */
+    private var internalConnectionTimeoutMilliseconds: Int = 1000
+    /** Int field fixture with a 32-character name for group ordering and alignment. */
+    private var internalConnectionTimeoutSeconds: Int      = 1
+    /** Int field fixture with a 29-character name for group ordering and alignment. */
+    private var connectionTimeoutMilliseconds: Int         = 1
+    /** Int field fixture with a 25-character name for group ordering and alignment. */
+    private var connectionTimeoutDuration: Int             = 1
+    /** Int field fixture with a 22-character name for group ordering and alignment. */
+    private var connectionTimeoutLimit: Int                = 1
+    /** Int field fixture with a 20-character name for group ordering and alignment. */
+    private var connectionBufferSize: Int                  = 1
+    /** Int field fixture with a 17-character name for group ordering and alignment. */
+    private var defaultBufferSize: Int                     = 1
+    /** Int field fixture with a 10-character name for group ordering and alignment. */
+    private var bufferSize: Int                            = 1
+    /** Int field fixture with a 9-character name for group ordering and alignment. */
+    private var entrySize: Int                             = 1
+    /** Int field fixture with a 4-character name for group ordering and alignment. */
+    private var size: Int                                  = 1
+
+    /** String field fixture with a 31-character name for group ordering and alignment. */
+    private var privateConfigurationDescription: String = "configuration"
+    /** String field fixture with a 27-character name for group ordering and alignment. */
+    private var privateConfigurationDetails: String     = "sample"
+    /** String field fixture with a 25-character name for group ordering and alignment. */
+    private var privateConfigurationLabel: String       = "sample"
+    /** String field fixture with a 23-character name for group ordering and alignment. */
+    private var privateConfigurationKey: String         = "sample"
+    /** String field fixture with a 20-character name for group ordering and alignment. */
+    private var configurationDetails: String            = "sample"
+    /** String field fixture with a 16-character name for group ordering and alignment. */
+    private var configurationKey: String                = "sample"
+    /** String field fixture with a 15-character name for group ordering and alignment. */
+    private var configurationId: String                 = "sample"
+    /** String field fixture with a 9-character name for group ordering and alignment. */
+    private var configKey: String                       = "sample"
+    /** String field fixture with a 8-character name for group ordering and alignment. */
+    private var configId: String                        = "sample"
+    /** String field fixture with a 5-character name for group ordering and alignment. */
+    private var keyId: String                           = "sample"
+    /** String field fixture with a 3-character name for group ordering and alignment. */
+    private var tag: String                             = "sample"
+    /** String field fixture with a 2-character name for group ordering and alignment. */
+    private var id: String                              = "default"
+
+    /** Boolean field fixture with a 13-character name for group ordering and alignment. */
+    private var enabledForUse: Boolean = true
+    /** Boolean field fixture with a 12-character name for group ordering and alignment. */
+    private var enabledToday: Boolean  = true
+    /** Boolean field fixture with a 11-character name for group ordering and alignment. */
+    private var enabledHere: Boolean   = true
+    /** Boolean field fixture with a 10-character name for group ordering and alignment. */
+    private var enabledNow: Boolean    = true
+    /** Boolean field fixture with a 7-character name for group ordering and alignment. */
+    private var enabled: Boolean       = true
+
+    /**
+     * Creates a fixture with the supplied values; unspecified fields retain their initializers.
+     *
+     */
+    constructor() {
+
+        this.id = "default"
+        this.privateConfigurationDescription = "configuration"
+
+    }
+
+    /**
+     * Creates a fixture with the supplied values; unspecified fields retain their initializers.
+     *
+     * @param id sample identifier assigned to the instance
+     */
+    constructor(id: String) {
+
+        this.id = id
+        this.privateConfigurationDescription = "configuration"
+
+    }
+
+    /**
+     * Creates a fixture with the supplied values; unspecified fields retain their initializers.
+     *
+     * @param id sample identifier assigned to the instance
+     * @param privateConfigurationDescription sample configuration description
+     */
+    constructor(id: String, privateConfigurationDescription: String) {
+
+        this.id = id
+        this.privateConfigurationDescription = privateConfigurationDescription
+
+    }
+
+    /**
+     * Creates a fixture with the supplied values; unspecified fields retain their initializers.
+     *
+     * @param id sample identifier assigned to the instance
+     * @param privateConfigurationDescription sample configuration description
+     * @param size sample size assigned without validation
+     */
+    constructor(id: String, privateConfigurationDescription: String, size: Int) {
+
+        this.id = id
+        this.privateConfigurationDescription = privateConfigurationDescription
+
+        this.size = size
+
+    }
+
+    /**
+     * Creates a fixture with the supplied values; unspecified fields retain their initializers.
+     *
+     * @param id sample identifier assigned to the instance
+     * @param privateConfigurationDescription sample configuration description
+     * @param size sample size assigned without validation
+     * @param internalConnectionTimeoutMilliseconds sample timeout value in milliseconds
+     */
+    constructor(
+        id: String,
+        privateConfigurationDescription: String,
+        size: Int,
+        internalConnectionTimeoutMilliseconds: Int
+    ) {
+
+        this.id = id
+        this.privateConfigurationDescription = privateConfigurationDescription
+
+        this.size = size
+        this.internalConnectionTimeoutMilliseconds = internalConnectionTimeoutMilliseconds
+
+    }
+
+    /**
+     * Creates a fixture with the supplied values; unspecified fields retain their initializers.
+     *
+     * @param id sample identifier assigned to the instance
+     * @param privateConfigurationDescription sample configuration description
+     * @param size sample size assigned without validation
+     * @param internalConnectionTimeoutMilliseconds sample timeout value in milliseconds
+     * @param enabled sample enabled flag
+     */
+    constructor(
+        id: String,
+        privateConfigurationDescription: String,
+        size: Int,
+        internalConnectionTimeoutMilliseconds: Int,
+        enabled: Boolean
+    ) {
+
+        this.id = id
+        this.privateConfigurationDescription = privateConfigurationDescription
+
+        this.size = size
+        this.internalConnectionTimeoutMilliseconds = internalConnectionTimeoutMilliseconds
+
+        this.enabled = enabled
+
+    }
+
+    /**
+     * Creates a fixture with the supplied values; unspecified fields retain their initializers.
+     *
+     * @param id sample identifier assigned to the instance
+     * @param privateConfigurationDescription sample configuration description
+     * @param size sample size assigned without validation
+     * @param internalConnectionTimeoutMilliseconds sample timeout value in milliseconds
+     * @param enabled sample enabled flag
+     * @param visible sample public availability flag
+     */
+    constructor(
+        @Suppress( "UNUSED_PARAMETER" )
+        id: String,
+        privateConfigurationDescription: String,
+        size: Int,
+        internalConnectionTimeoutMilliseconds: Int,
+        enabled: Boolean,
+        visible: Boolean
+    ) : this(id, privateConfigurationDescription, size, internalConnectionTimeoutMilliseconds, enabled) {
+
+        this.publiclyAvailable = visible
+
+    }
+
+    @Suppress( "unused" )
+    /**
+         * Concatenates the annotated prefix and suffix to exercise parameter annotation layout.
+         *
+         * @param prefix string segment concatenated in the supplied order
+         * @param suffix string segment concatenated in the supplied order
+         *
+         * @return concatenated sample text
+         *
+         * @author Mohammad ali Riazati
+         * @since 1.0.0
+         */
+    fun renderAnnotated(
+        @Suppress( "UNUSED_PARAMETER" )
+        prefix: String,
+        suffix: String
+    ): String {
+
+        return prefix + suffix
+
+    }
+
+    /**
+     * Maps known numeric sample codes to labels and returns other for unmatched values.
+     *
+     * @param code integer operand or sample code
+     *
+     * @return selected sample label
+     *
+     * @author Mohammad ali Riazati
+     * @since 1.0.0
+     */
+    fun selectLabel(code: Int): String {
+
+        return when (code) {
+
+            1    -> "first"
+
+            22   -> "second"
+
+            333  -> "third"
+
+            4444 -> "fourth"
+
+            else -> "other"
+
+        }
+    }
+
+    /**
+     * Returns the supplied prefix followed by the sample identifier.
+     *
+     * @param prefix string segment concatenated in the supplied order
+     *
+     * @return concatenated sample text
+     *
+     * @author Mohammad ali Riazati
+     * @since 1.0.0
+     */
+    fun describe(prefix: String): String {
+
+        val description = prefix + id;
+
+        return description
+
+    }
+
+    /**
+     * Returns the sum of the two supplied integers.
+     *
+     * @param first integer operand or sample code
+     * @param second integer operand or sample code
+     *
+     * @return sum of the supplied integers
+     *
+     * @author Mohammad ali Riazati
+     * @since 1.0.0
+     */
+    fun calculate(first: Int, second: Int): Int {
+
+        val sum = first + second;
+
+        return sum
+
+    }
+
+    /**
+     * Concatenates three strings in their supplied order.
+     *
+     * @param first string segment concatenated in the supplied order
+     * @param second string segment concatenated in the supplied order
+     * @param third string segment concatenated in the supplied order
+     *
+     * @return concatenated sample text
+     *
+     * @author Mohammad ali Riazati
+     * @since 1.0.0
+     */
+    fun combine(first: String, second: String, third: String): String {
+
+        return first + second + third
+
+    }
+
+    /**
+     * Returns the sum of four supplied integers.
+     *
+     * @param first integer operand or sample code
+     * @param second integer operand or sample code
+     * @param third integer operand or sample code
+     * @param fourth integer operand or sample code
+     *
+     * @return sum of the supplied integers
+     *
+     * @author Mohammad ali Riazati
+     * @since 1.0.0
+     */
+    fun total(first: Int, second: Int, third: Int, fourth: Int): Int {
+
+        return first + second + third + fourth
+
+    }
+
+    /**
+     * Concatenates five descriptions and prints an unrelated diagnostic message to exercise statement spacing.
+     *
+     * @param extremelyLongFirstDescription string segment concatenated in the supplied order
+     * @param extremelyLongSecondDescription string segment concatenated in the supplied order
+     * @param extremelyLongThirdDescription string segment concatenated in the supplied order
+     * @param extremelyLongFourthDescription string segment concatenated in the supplied order
+     * @param extremelyLongFifthDescription string segment concatenated in the supplied order
+     *
+     * @return concatenated sample text
+     *
+     * @author Mohammad ali Riazati
+     * @since 1.0.0
+     */
+    fun buildDescription(
+        extremelyLongFirstDescription: String,
+        extremelyLongSecondDescription: String,
+        extremelyLongThirdDescription: String,
+        extremelyLongFourthDescription: String,
+        extremelyLongFifthDescription: String
+    ): String {
+
+        val result = extremelyLongFirstDescription + extremelyLongSecondDescription;
+
+        println( "An unrelated diagnostic message." );
+
+        return result + extremelyLongThirdDescription + extremelyLongFourthDescription + extremelyLongFifthDescription
+
+    }
+
+    companion object {
+
+        /** Int field fixture with a 33-character name for group ordering and alignment. */
+        public const val MAXIMUM_SUPPORTED_RETRY_THRESHOLD: Int = 1
+        /** Int field fixture with a 32-character name for group ordering and alignment. */
+        public const val MAXIMUM_SUPPORTED_RETRY_ATTEMPTS: Int  = 5
+        /** Int field fixture with a 32-character name for group ordering and alignment. */
+        public const val MAXIMUM_SUPPORTED_RETRY_CAPACITY: Int  = 1
+        /** Int field fixture with a 30-character name for group ordering and alignment. */
+        public const val MAXIMUM_SUPPORTED_MAX_ATTEMPTS: Int    = 1
+        /** Int field fixture with a 29-character name for group ordering and alignment. */
+        public const val MAXIMUM_SUPPORTED_RETRY_LIMIT: Int     = 1
+
+        /** String field fixture with a 28-character name for group ordering and alignment. */
+        public const val APPLICATION_IDENTIFIER_VALUE: String = "sample"
+        /** String field fixture with a 28-character name for group ordering and alignment. */
+        public const val APPLICATION_IDENTIFIER_LABEL: String = "sample"
+        /** String field fixture with a 27-character name for group ordering and alignment. */
+        public const val APPLICATION_IDENTIFIER_TEST: String  = "sample"
+        /** String field fixture with a 27-character name for group ordering and alignment. */
+        public const val APPLICATION_IDENTIFIER_TEXT: String  = "sample"
+        /** String field fixture with a 22-character name for group ordering and alignment. */
+        public const val APPLICATION_IDENTIFIER: String       = "baseline"
+
+        /** Int field fixture with a 43-character name for group ordering and alignment. */
+        protected const val DEFAULT_CONNECTION_TIMEOUT_MAX_MILLISECONDS: Int = 1
+        /** Int field fixture with a 39-character name for group ordering and alignment. */
+        protected const val DEFAULT_CONNECTION_TIMEOUT_MILLISECONDS: Int     = 1000
+        /** Int field fixture with a 39-character name for group ordering and alignment. */
+        protected const val DEFAULT_CONNECTION_TIMEOUT_MICROSECONDS: Int     = 1
+        /** Int field fixture with a 34-character name for group ordering and alignment. */
+        protected const val DEFAULT_CONNECTION_TIMEOUT_SECONDS: Int          = 1
+        /** Int field fixture with a 30-character name for group ordering and alignment. */
+        protected const val DEFAULT_CONNECTION_TIMEOUT_MAX: Int              = 1
+
+        /** String field fixture with a 42-character name for group ordering and alignment. */
+        private const val INTERNAL_CONFIGURATION_STORAGE_KEY_VERSION: String = "sample"
+        /** String field fixture with a 40-character name for group ordering and alignment. */
+        private const val INTERNAL_CONFIGURATION_STORAGE_KEY_LABEL: String   = "sample"
+        /** String field fixture with a 40-character name for group ordering and alignment. */
+        private const val INTERNAL_CONFIGURATION_STORAGE_KEY_VALUE: String   = "sample"
+        /** String field fixture with a 39-character name for group ordering and alignment. */
+        private const val INTERNAL_CONFIGURATION_STORAGE_KEY_NAME: String    = "sample"
+        /** String field fixture with a 34-character name for group ordering and alignment. */
+        private const val INTERNAL_CONFIGURATION_STORAGE_KEY: String         = "storage"
+
+    }
+}

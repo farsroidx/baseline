@@ -1,0 +1,142 @@
+package ir.farsroidx.baseline.samples
+
+/** String field fixture with a 40-character name for group ordering and alignment. */
+public val extraordinarilyLongApplicationIdentifier: String = "baseline"
+/** String field fixture with a 29-character name for group ordering and alignment. */
+public val extendedApplicationIdentifier: String            = "extended"
+/** String field fixture with a 25-character name for group ordering and alignment. */
+public val longApplicationIdentifier: String                = "long"
+/** String field fixture with a 21-character name for group ordering and alignment. */
+public val applicationIdentifier: String                    = "identifier"
+/** String field fixture with a 16-character name for group ordering and alignment. */
+public val applicationLabel: String                         = "label"
+/** String field fixture with a 14-character name for group ordering and alignment. */
+public val applicationKey: String                           = "key"
+/** String field fixture with a 13-character name for group ordering and alignment. */
+public val applicationId: String                            = "id"
+/** String field fixture with a 5-character name for group ordering and alignment. */
+public val alias: String                                    = "alias"
+/** String field fixture with a 3-character name for group ordering and alignment. */
+public val tag: String                                      = "tag"
+/** String field fixture with a 2-character name for group ordering and alignment. */
+public val id: String                                       = "identifier";
+
+/** Int field fixture with a 36-character name for group ordering and alignment. */
+internal val defaultConnectionTimeoutMilliseconds: Int = 1000
+/** Int field fixture with a 31-character name for group ordering and alignment. */
+internal val defaultConnectionTimeoutSeconds: Int      = 1
+/** Int field fixture with a 29-character name for group ordering and alignment. */
+internal val connectionTimeoutMilliseconds: Int        = 1
+/** Int field fixture with a 25-character name for group ordering and alignment. */
+internal val connectionTimeoutDuration: Int            = 1
+/** Int field fixture with a 24-character name for group ordering and alignment. */
+internal val connectionTimeoutSeconds: Int             = 1
+
+/** String field fixture with a 31-character name for group ordering and alignment. */
+private val internalConfigurationStorageKey: String = "storage";
+/** String field fixture with a 24-character name for group ordering and alignment. */
+private val internalConfigurationKey: String        = "internal"
+/** String field fixture with a 23-character name for group ordering and alignment. */
+private val configurationStorageKey: String         = "storage"
+/** String field fixture with a 18-character name for group ordering and alignment. */
+private val configurationLabel: String              = "label"
+/** String field fixture with a 16-character name for group ordering and alignment. */
+private val configurationKey: String                = "key"
+
+/**
+ * Returns the prefix followed by the top-level sample identifier.
+ *
+ * @param prefix string segment concatenated in the supplied order
+ *
+ * @return concatenated sample text
+ *
+ * @author Mohammad ali Riazati
+ * @since 1.0.0
+ */
+fun describeSample(prefix: String): String {
+
+    return prefix + id
+
+}
+
+/**
+ * Returns the sum of two integers while exercising local declaration spacing.
+ *
+ * @param first integer operand or sample code
+ * @param second integer operand or sample code
+ *
+ * @return sum of the supplied integers
+ *
+ * @author Mohammad ali Riazati
+ * @since 1.0.0
+ */
+fun calculateSample(first: Int, second: Int): Int {
+
+    val total = first + second;
+
+    return total
+
+}
+
+/**
+ * Concatenates the three supplied strings in order.
+ *
+ * @param first string segment concatenated in the supplied order
+ * @param second string segment concatenated in the supplied order
+ * @param third string segment concatenated in the supplied order
+ *
+ * @return concatenated sample text
+ *
+ * @author Mohammad ali Riazati
+ * @since 1.0.0
+ */
+fun combineSample(first: String, second: String, third: String): String {
+
+    return first + second + third
+
+}
+
+/**
+ * Returns the sum of the four supplied integers.
+ *
+ * @param first integer operand or sample code
+ * @param second integer operand or sample code
+ * @param third integer operand or sample code
+ * @param fourth integer operand or sample code
+ *
+ * @return sum of the supplied integers
+ *
+ * @author Mohammad ali Riazati
+ * @since 1.0.0
+ */
+fun totalSample(first: Int, second: Int, third: Int, fourth: Int): Int {
+
+    return first + second + third + fourth
+
+}
+
+/**
+ * Concatenates five descriptions in their supplied order.
+ *
+ * @param extremelyLongFirstDescription string segment concatenated in the supplied order
+ * @param extremelyLongSecondDescription string segment concatenated in the supplied order
+ * @param extremelyLongThirdDescription string segment concatenated in the supplied order
+ * @param extremelyLongFourthDescription string segment concatenated in the supplied order
+ * @param extremelyLongFifthDescription string segment concatenated in the supplied order
+ *
+ * @return concatenated sample text
+ *
+ * @author Mohammad ali Riazati
+ * @since 1.0.0
+ */
+fun buildSampleDescription(
+    extremelyLongFirstDescription: String,
+    extremelyLongSecondDescription: String,
+    extremelyLongThirdDescription: String,
+    extremelyLongFourthDescription: String,
+    extremelyLongFifthDescription: String
+): String {
+
+    return extremelyLongFirstDescription + extremelyLongSecondDescription + extremelyLongThirdDescription + extremelyLongFourthDescription + extremelyLongFifthDescription
+
+}

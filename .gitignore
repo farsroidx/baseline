@@ -1,0 +1,10 @@
+.gradle
+.idea
+.intellijPlatform
+.kotlin
+.project
+.classpath
+build
+target/
+*/target/
+*.iml
