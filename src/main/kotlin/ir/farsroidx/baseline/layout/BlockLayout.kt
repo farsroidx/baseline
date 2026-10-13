@@ -29,49 +29,6 @@ internal class BlockLayout {
 
     }
 
-    /**
-     * Plans the retained chain-call layout using structurally detected qualified calls.
-     *
-     * @param source committed Java/Kotlin PSI file to inspect or format
-     *
-     * @return unapplied edits against the current PSI snapshot
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    fun chains(source: PsiFile): TextEdits {
-
-        val edits = TextEdits()
-
-        for (expression in PsiTreeUtil.collectElements( source ) { isChainedCall( it ) }) {
-
-            val argumentList = PsiTreeUtil
-                .getParentOfType(
-                    expression, PsiExpressionList::class.java, KtValueArgumentList::class.java
-                )
-                ?: continue
-
-            val root = generateSequence( expression ) { it.parent }.takeWhile { it !== argumentList }
-                .lastOrNull { isChainedCall( it ) } ?: expression
-
-            val reference = if (expression is PsiMethodCallExpression) expression.methodExpression else expression
-
-            val children = reference.node
-                .getChildren( null )
-                .map { it.psi }
-                .filter { it !is PsiWhiteSpace }
-
-            val dot = children.firstOrNull { it.text == "." || it.text == "?." } ?: continue
-
-            val receiver = children.lastOrNull { it.textRange.endOffset <= dot.textRange.startOffset } ?: continue
-
-            edits.gap( receiver, dot, NEW_LINE + indentation( root ) + INDENT )
-
-        }
-
-        return edits
-
-    }
 
     /**
      * Separates local declarations/assignments from following statements outside constructor bodies.
@@ -80,70 +37,10 @@ internal class BlockLayout {
      *
      * @return unapplied edits against the current PSI snapshot
      *
-     * @deprecated Use [statementSpacing2] for the replacement revision.
-     * @see statementSpacing2
-     *
      * @author Mohammad ali Riazati
      * @since 1.0.0
      */
-    @Deprecated( "Use statementSpacing2 instead." )
     fun statementSpacing(source: PsiFile): TextEdits {
-
-        val edits = TextEdits()
-
-        for (body in PsiTreeUtil.findChildrenOfType( source, PsiCodeBlock::class.java )) {
-
-            val owner = body.parent
-
-            if (owner is PsiMethod && owner.isConstructor) {
-
-                continue
-            }
-
-            for (
-                (left, right) in body.statements
-                    .toList()
-                    .zipWithNext()
-            ) {
-
-                if (left is PsiDeclarationStatement) edits.gap( left, right, BLANK_LINE + indentation( left ) )
-
-            }
-        }
-
-        for (body in PsiTreeUtil.findChildrenOfType( source, KtBlockExpression::class.java )) {
-
-            if (body.parent is KtSecondaryConstructor) {
-
-                continue
-            }
-
-            for ( (left, right) in body.statements.zipWithNext() ) {
-
-                if (left is KtProperty) edits.gap( left, right, BLANK_LINE + indentation( left ) )
-
-            }
-        }
-
-        return edits
-
-    }
-
-    /**
-     * Separates local declarations/assignments from following statements outside constructor bodies.
-     *
-     * This revision supports the current layout contract; earlier revisions remain available.
-     *
-     * @param source committed Java/Kotlin PSI file to inspect or format
-     *
-     * @return unapplied edits against the current PSI snapshot
-     *
-     * @see statementSpacing
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    fun statementSpacing2(source: PsiFile): TextEdits {
 
         val edits = TextEdits()
 

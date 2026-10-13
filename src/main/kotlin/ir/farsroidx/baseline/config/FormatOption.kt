@@ -265,6 +265,13 @@ enum class FormatOption(
     SEPARATE_STATEMENTS(
         "Structure", "One statement per native line", "Require one statement per line during native formatting.",
         FormatOptions::separateStatements
+    ),
+
+    GROUP_FIELDS_BY_PREFIX(
+        "Fields",
+        "Group fields by shared prefix",
+        "Group matching snake_case or camelCase prefixes across field types inside each visibility/static section.",
+        FormatOptions::groupFieldsByPrefix
     );
 
 }

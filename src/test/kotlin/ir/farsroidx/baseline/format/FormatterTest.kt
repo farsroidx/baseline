@@ -21,7 +21,7 @@ import java.nio.file.Path
  * Exercises the registered IntelliJ post-formatter with Java/Kotlin PSI fixtures.
  *
  * Assertions cover whitespace contracts, parameter order, semantic barriers, parsing and
- * repeat-format stability. Legacy helper paths intentionally verify retained behavior.
+ * repeat-format stability. All assertions exercise the current formatter pipeline.
  */
 class FormatterTest : BasePlatformTestCase() {
 
@@ -35,16 +35,16 @@ class FormatterTest : BasePlatformTestCase() {
 
         val source = "class Sample { private String hidden; public String x; protected int count; public String lengthyName; public int number; }"
 
-        val result = formatBeforeCurrent("Sample.java", source)
+        val result = format("Sample.java", source)
 
-        assertTrue(result.indexOf("public int number") < result.indexOf("public String lengthyName"))
+        assertTrue(result.indexOf("public String lengthyName") < result.indexOf("public int number"))
         assertTrue(result.indexOf("public String lengthyName") < result.indexOf("public String x"))
         assertTrue(result.indexOf("public String x") < result.indexOf("protected int count"))
         assertTrue(result.indexOf("protected int count") < result.indexOf("private String hidden"))
         assertTrue(result.contains("public String lengthyName;\n    public String x;"))
-        assertTrue(result.contains("public int number;\n\n    public String lengthyName;"))
+        assertTrue(result.contains("public String x;\n\n    public int number;"))
         assertFalse(result.endsWith("\n"))
-        assertEquals(result, formatBeforeCurrent("Sample.java", result))
+        assertEquals(result, format("Sample.java", result))
 
     }
 
@@ -58,14 +58,14 @@ class FormatterTest : BasePlatformTestCase() {
 
         val source = "class Sample { private var hidden: String = \"\"; public var x: String = \"\"; protected var count: Int = 0; public var lengthyName: String = \"\"; public var number: Int = 0 }"
 
-        val result = formatBeforeCurrent("Sample.kt", source)
+        val result = format("Sample.kt", source)
 
-        assertTrue(result.indexOf("public var number") < result.indexOf("public var lengthyName"))
+        assertTrue(result.indexOf("public var lengthyName") < result.indexOf("public var number"))
         assertTrue(result.indexOf("public var lengthyName") < result.indexOf("public var x"))
         assertTrue(result.indexOf("public var x") < result.indexOf("protected var count"))
         assertTrue(result.indexOf("protected var count") < result.indexOf("private var hidden"))
         assertFalse(result.endsWith("\n"))
-        assertEquals(result, formatBeforeCurrent("Sample.kt", result))
+        assertEquals(result, format("Sample.kt", result))
 
     }
 
@@ -185,12 +185,12 @@ class FormatterTest : BasePlatformTestCase() {
 
         val source = "class Sample { fun execute(): Int { val value = 1; return value } }"
 
-        val result = formatLegacy("Sample.kt", source)
+        val result = format("Sample.kt", source)
 
         assertTrue(result.contains("class Sample {\n\n"))
         assertTrue(result.contains("execute(): Int {\n\n"))
-        assertTrue(result.contains("return value\n\n    }\n\n}"))
-        assertEquals(result, formatLegacy("Sample.kt", result))
+        assertTrue(result.contains("return value\n\n    }\n}"))
+        assertEquals(result, format("Sample.kt", result))
 
     }
 
@@ -452,7 +452,7 @@ class FormatterTest : BasePlatformTestCase() {
                 if (path.fileName.toString().startsWith( "Java" )) ".java" else ".kt"
 
             val source = Files.readString(path)
-            val originalTokens = tokens2(
+            val originalTokens = tokens(
                 myFixture.configureByText(
                     name,
                     source
@@ -465,7 +465,7 @@ class FormatterTest : BasePlatformTestCase() {
             )
 
             assertFalse(result.endsWith("\n"))
-            assertEquals(originalTokens, tokens2(myFixture.file))
+            assertEquals(originalTokens, tokens(myFixture.file))
             assertEquals(result, format(name, result))
 
             Files.writeString(
@@ -478,39 +478,13 @@ class FormatterTest : BasePlatformTestCase() {
     }
 
     /**
-     * Verifies kotlin lambda statements share indentation.
-     *
-     * @deprecated Use [testKotlinLambdaStatementsShareIndentation2] for the replacement revision.
-     * @see testKotlinLambdaStatementsShareIndentation2
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    @Deprecated("Use testKotlinLambdaStatementsShareIndentation2 instead.")
-    fun testKotlinLambdaStatementsShareIndentation() {
-
-        val source = "class Sample { fun execute() { consume { value -> val first = value; val second = first; println(second) } } }"
-
-        val result = formatLegacy("Sample.kt", source)
-
-        assertTrue(result.contains("            val first = value"))
-        assertTrue(result.contains("\n            val second = first"))
-        assertTrue(result.contains("\n            println(second)"))
-        assertEquals(result, formatLegacy("Sample.kt", result))
-
-    }
-
-    /**
      * Verifies kotlin lambda statements share indentation2.
      *
-     * This revision supports the current layout contract; earlier revisions remain available.
-     *
-     * @see testKotlinLambdaStatementsShareIndentation
      *
      * @author Mohammad ali Riazati
      * @since 1.0.0
      */
-    fun testKotlinLambdaStatementsShareIndentation2() {
+    fun testKotlinLambdaStatementsShareIndentation() {
 
         val source = "class Sample { fun execute() { consume { value -> val first = value; val second = first; println(second) } } }"
 
@@ -580,53 +554,13 @@ class FormatterTest : BasePlatformTestCase() {
     }
 
     /**
-     * Verifies formatter sources have stable output.
-     *
-     * @deprecated Use [testFormatterSourcesHaveStableOutput2] for the replacement revision.
-     * @see testFormatterSourcesHaveStableOutput2
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    @Deprecated( "Use testFormatterSourcesHaveStableOutput2 instead." )
-    fun testFormatterSourcesHaveStableOutput() {
-
-        val directory = Path.of("src/main/kotlin/ir/farsroidx/baseline/format")
-        val output = Path.of("build/formatted-formatter")
-
-        Files.createDirectories(output)
-
-        Files.list(directory).use { paths ->
-
-            paths.filter { it.toString().endsWith(".kt") }.forEach { path ->
-
-                val name = path.fileName.toString()
-                val source = Files.readString(path)
-                val originalTokens = tokens2(myFixture.configureByText(name, source))
-                val result = format(name, source)
-
-                assertEquals(name, originalTokens, tokens2(myFixture.file))
-                assertEquals(name, result, format(name, result))
-
-                Files.writeString(output.resolve(name), result)
-
-            }
-
-        }
-
-    }
-
-    /**
      * Verifies formatter sources have stable output2.
      *
-     * This revision supports the current layout contract; earlier revisions remain available.
-     *
-     * @see testFormatterSourcesHaveStableOutput
      *
      * @author Mohammad ali Riazati
      * @since 1.0.0
      */
-    fun testFormatterSourcesHaveStableOutput2() {
+    fun testFormatterSourcesHaveStableOutput() {
 
         val directory = Path.of("src/main/kotlin/ir/farsroidx/baseline")
         val output = Path.of("build/formatted-formatter")
@@ -639,10 +573,10 @@ class FormatterTest : BasePlatformTestCase() {
 
                 val name = path.fileName.toString()
                 val source = Files.readString(path)
-                val originalTokens = tokens2(myFixture.configureByText(name, source))
+                val originalTokens = tokens(myFixture.configureByText(name, source))
                 val result = format(name, source)
 
-                assertEquals(name, originalTokens, tokens2(myFixture.file))
+                assertEquals(name, originalTokens, tokens(myFixture.file))
                 assertEquals(name, result, format(name, result))
 
                 val destination = output.resolve(directory.relativize(path))
@@ -658,42 +592,13 @@ class FormatterTest : BasePlatformTestCase() {
     }
 
     /**
-     * Verifies consecutive closing braces have no blank lines.
-     *
-     * @deprecated Use [testConsecutiveClosingBracesHaveNoBlankLines2] for the replacement revision.
-     * @see testConsecutiveClosingBracesHaveNoBlankLines2
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    @Deprecated("Use testConsecutiveClosingBracesHaveNoBlankLines2 instead.")
-    fun testConsecutiveClosingBracesHaveNoBlankLines() {
-
-        for ((name, source) in listOf(
-            "Sample.java" to "class Sample { void execute() { if (true) { consume(); } } }",
-            "Sample.kt" to "class Sample { fun execute() { if (true) { consume() } } }"
-        )) {
-
-            val result = formatPrevious(name, source)
-
-            assertTrue(result.contains("        }\n    }\n}"))
-            assertEquals(result, formatPrevious(name, result))
-
-        }
-
-    }
-
-    /**
      * Verifies consecutive closing braces have no blank lines2.
      *
-     * This revision supports the current layout contract; earlier revisions remain available.
-     *
-     * @see testConsecutiveClosingBracesHaveNoBlankLines
      *
      * @author Mohammad ali Riazati
      * @since 1.0.0
      */
-    fun testConsecutiveClosingBracesHaveNoBlankLines2() {
+    fun testConsecutiveClosingBracesHaveNoBlankLines() {
 
         for ((name, source) in listOf(
             "Sample.java" to "class Sample { void execute() { if (true) { consume(); consume(); } } }",
@@ -874,38 +779,6 @@ class FormatterTest : BasePlatformTestCase() {
 
         assertEquals(question.indexOf('?'), colon.indexOf(':'))
         assertEquals(result, format("Sample.java", result))
-
-    }
-
-    /**
-     * Runs the retained original post-formatter revision for compatibility assertions.
-     *
-     * @param name fixture filename selecting the language parser
-     * @param text original source text supplied to the fixture
-     *
-     * @return computed source text or whitespace prefix
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    private fun formatLegacy(
-        name: String,
-        text: String
-    ): String {
-
-        val file = myFixture.configureByText(name, text)
-
-        WriteCommandAction.runWriteCommandAction(project) {
-
-            FormatProcessor().processText2(
-                file,
-                file.textRange,
-                CodeStyle.getSettings(file)
-            )
-
-        }
-
-        return file.text
 
     }
 
@@ -1141,100 +1014,6 @@ class FormatterTest : BasePlatformTestCase() {
     }
 
     /**
-     * Verifies developer parameter argument and member order is preserved.
-     *
-     * @deprecated Use [tokens2] for the replacement revision.
-     * @see tokens2
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    @Deprecated("Use tokens2 instead.")
-    fun testDeveloperParameterArgumentAndMemberOrderIsPreserved() {
-
-        for ((name, source) in listOf(
-            "Sample.java" to "class Sample { Sample(String configuration, int timeout, String id, int size) {} void zeta(String third, int first, String second) {} Sample(int size, String id) {} void alpha() { consume(buildThird(), buildFirst(), buildSecond()); } }",
-            "Sample.kt" to "class Sample { constructor(configuration: String, timeout: Int, id: String, size: Int) {} fun zeta(third: String, first: Int, second: String) {} constructor(size: Int, id: String) {} fun alpha() { consume(buildThird(), buildFirst(), buildSecond()) } }"
-        )) {
-
-            val before = declarationOrder(myFixture.configureByText(name, source))
-
-            val result = format(name, source, RIGHT_MARGIN)
-
-            assertEquals(before, declarationOrder(myFixture.file))
-            assertTrue(result.indexOf("buildThird()") < result.indexOf("buildFirst()"))
-            assertTrue(result.indexOf("buildFirst()") < result.indexOf("buildSecond()"))
-            assertEquals(result, format(name, result, RIGHT_MARGIN))
-
-        }
-
-    }
-
-    /**
-     * Runs the preceding formatter revision for regression assertions.
-     *
-     * @param name fixture filename selecting the language parser
-     * @param text original source text supplied to the fixture
-     *
-     * @return computed source text or whitespace prefix
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    private fun formatPrevious(
-        name: String,
-        text: String
-    ): String {
-
-        val file = myFixture.configureByText(name, text)
-
-        WriteCommandAction.runWriteCommandAction(project) {
-
-            FormatProcessor().processText4(
-                file,
-                file.textRange,
-                CodeStyle.getSettings(file)
-            )
-
-        }
-
-        return file.text
-
-    }
-
-    /**
-     * Runs the retained earlier formatter revision for historical layout assertions.
-     *
-     * @param name fixture filename selecting the language parser
-     * @param text original source text supplied to the fixture
-     *
-     * @return computed source text or whitespace prefix
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    private fun formatBeforeCurrent(
-        name: String,
-        text: String
-    ): String {
-
-        val file = myFixture.configureByText(name, text)
-
-        WriteCommandAction.runWriteCommandAction(project) {
-
-            FormatProcessor().processText5(
-                file,
-                file.textRange,
-                CodeStyle.getSettings(file)
-            )
-
-        }
-
-        return file.text
-
-    }
-
-    /**
      * Returns method/constructor names followed by their parameters in declaration order.
      *
      * @param file Java/Kotlin fixture containing the sample class
@@ -1279,14 +1058,14 @@ class FormatterTest : BasePlatformTestCase() {
     fun testPropertyReceiverChainsWrapBeforeTheirFirstCall() {
 
         for ((name, source) in listOf(
-            "Sample.java" to "class Sample { void execute() { element.containingFile.text.substring(start, end).lineSequence().last().trimEnd(); } }",
-            "Sample.kt" to "class Sample { fun execute() { element.containingFile.text.substring(start, end).lineSequence().last().trimEnd() } }"
+            "Sample.java" to "class Sample { void execute() { element.containingFile.text.substring( start, end ).lineSequence().last().trimEnd(); } }",
+            "Sample.kt" to "class Sample { fun execute() { element.containingFile.text.substring( start, end ).lineSequence().last().trimEnd() } }"
         )) {
 
-            val result = formatBeforeCurrent(name, source)
+            val result = format(name, source)
 
-            assertTrue(result, result.contains("element.containingFile.text\n            .substring(start, end)\n            .lineSequence()\n            .last()\n            .trimEnd()"))
-            assertEquals(result, formatBeforeCurrent(name, result))
+            assertTrue(result, result.contains("element.containingFile.text\n            .substring( start, end )\n            .lineSequence()\n            .last()\n            .trimEnd()"))
+            assertEquals(result, format(name, result))
 
         }
 
@@ -1834,11 +1613,11 @@ class FormatterTest : BasePlatformTestCase() {
 
         val source = "fun execute() { if (items.isEmpty() || items.any { BlockLayout().hasChainedCall(it) || it.text.contains('\\n') } || PsiTreeUtil.findChildrenOfType(list, PsiComment::class.java).isNotEmpty()) { consume() } }"
 
-        val original = tokens2(myFixture.configureByText("Sample.kt", source))
+        val original = tokens(myFixture.configureByText("Sample.kt", source))
 
         val result = format("Sample.kt", source)
 
-        assertEquals(original, tokens2(myFixture.file))
+        assertEquals(original, tokens(myFixture.file))
         assertTrue(result, result.contains("items.isEmpty() ||\n        items.any {"))
         assertTrue(result, result.contains("} ||\n        PsiTreeUtil"))
         assertFalse(result, result.contains("items\n"))
@@ -1858,11 +1637,11 @@ class FormatterTest : BasePlatformTestCase() {
 
         val source = "class Sample { void execute() { if (items.isEmpty() || items.any(it -> { return hasChain(it) || it.text.contains(\"value\"); }) || Tree.find(list, Comment.class).isNotEmpty()) { consume(); } } }"
 
-        val original = tokens2(myFixture.configureByText("Sample.java", source))
+        val original = tokens(myFixture.configureByText("Sample.java", source))
 
         val result = format("Sample.java", source)
 
-        assertEquals(original, tokens2(myFixture.file))
+        assertEquals(original, tokens(myFixture.file))
         assertTrue(result, result.contains("items.isEmpty() ||\n"))
         assertTrue(result, result.indexOf("items.isEmpty()") < result.indexOf("items.any("))
         assertTrue(result, result.indexOf("items.any(") < result.indexOf("Tree.find("))
@@ -1908,36 +1687,11 @@ class FormatterTest : BasePlatformTestCase() {
      *
      * @return sorted token spellings for preservation assertions
      *
+     *
      * @author Mohammad ali Riazati
      * @since 1.0.0
      */
     private fun tokens(
-        file: PsiFile
-    ): List<String> {
-
-        return PsiTreeUtil.collectElements(file) {
-
-            it.node.firstChildNode == null && it !is PsiWhiteSpace && it.text != ";"
-
-        }.map { it.text }.sorted()
-
-    }
-
-    /**
-     * Collects sorted non-whitespace leaf token spellings, excluding optional statement semicolons.
-     *
-     * This revision supports the current layout contract; earlier revisions remain available.
-     *
-     * @param file PSI file supplying leaf tokens
-     *
-     * @return sorted token spellings for preservation assertions
-     *
-     * @see tokens
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    private fun tokens2(
         file: PsiFile
     ): List<String> {
 
@@ -1991,10 +1745,10 @@ class FormatterTest : BasePlatformTestCase() {
 
         val source = "class Sample { String execute() { String value = \"{ a, b; }\"; return value; } }"
 
-        val result = formatLegacy("Sample.java", source)
+        val result = format("Sample.java", source)
 
         assertTrue(result.contains("\"{ a, b; }\""))
-        assertTrue(result.contains("String value = \"{ a, b; }\";\n        return value;"))
+        assertTrue(result.contains("String value = \"{ a, b; }\";\n\n        return value;"))
         assertTrue(result.contains("execute() {\n\n"))
         assertTrue(result.contains("return value;\n\n    }"))
 

@@ -174,145 +174,6 @@ internal class SyntaxLayout {
     }
 
     /**
-     * Plans Kotlin when/Java switch case spacing and aligned separators.
-     *
-     * @param source committed Java/Kotlin PSI file to inspect or format
-     *
-     * @return unapplied edits against the current PSI snapshot
-     *
-     * @deprecated Use [branches2] for the replacement revision.
-     * @see branches2
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    @Deprecated( "Use branches2 instead." )
-    fun branches(source: PsiFile): TextEdits {
-
-        val edits = TextEdits()
-
-        for (expression in PsiTreeUtil.findChildrenOfType( source, KtWhenExpression::class.java )) {
-
-            val entries = expression.entries
-
-            val children = expression.node
-                .getChildren( null )
-                .map { it.psi }
-
-            val opening = children.firstOrNull { it.text == "{" }
-
-            val closing = children.lastOrNull { it.text == "}" }
-
-            val base = indentation( expression )
-
-            if (entries.isNotEmpty() && opening != null && closing != null) {
-
-                edits.gap( opening, entries.first(), BLANK_LINE + base + INDENT )
-
-                for ( (left, right) in entries.zipWithNext() ) {
-
-                    edits.gap( left, right, NEW_LINE + base + INDENT )
-
-                }
-
-                edits.gap( entries.last(), closing, BLANK_LINE + base )
-
-            }
-
-            alignBranches(entries, edits)
-
-        }
-
-        for (expression in PsiTreeUtil.findChildrenOfType( source, PsiSwitchBlock::class.java )) {
-
-            val labels = expression.body?.statements?.filterIsInstance<PsiSwitchLabelStatementBase>() ?: continue
-
-            alignBranches(labels, edits)
-
-        }
-
-        return edits
-
-    }
-
-    /** Applies the updated formatting rules.
-     * @since 1.0.0
-     * @see branches
-     */
-    @Deprecated( "Use branches3 instead." )
-    /**
-         * Plans Kotlin when/Java switch case spacing and aligned separators.
-         *
-         * This revision supports the current layout contract; earlier revisions remain available.
-         *
-         * @param source committed Java/Kotlin PSI file to inspect or format
-         *
-         * @return unapplied edits against the current PSI snapshot
-         *
-         * @see branches
-         *
-         * @author Mohammad ali Riazati
-         * @since 1.0.0
-         */
-    fun branches2(source: PsiFile): TextEdits {
-
-        val edits = TextEdits()
-
-        for (expression in PsiTreeUtil.findChildrenOfType( source, KtWhenExpression::class.java )) {
-
-            val entries = expression.entries
-
-            val children = expression.node
-                .getChildren( null )
-                .map { it.psi }
-
-            val opening = children.firstOrNull { it.text == "{" }
-
-            val closing = children.lastOrNull { it.text == "}" }
-
-            val base = indentation( expression )
-
-            if (entries.isNotEmpty() && opening != null && closing != null) {
-
-                edits.gap( opening, entries.first(), BLANK_LINE + base + INDENT )
-
-                for ( (left, right) in entries.zipWithNext() ) {
-
-                    edits.gap( left, right, BLANK_LINE + base + INDENT )
-
-                }
-
-                edits.gap( entries.last(), closing, BLANK_LINE + base )
-
-            }
-
-            alignBranches(entries, edits)
-
-        }
-
-        for (expression in PsiTreeUtil.findChildrenOfType( source, PsiSwitchBlock::class.java )) {
-
-            val labels = expression.body?.statements?.filterIsInstance<PsiSwitchLabelStatementBase>() ?: continue
-
-            val statements = expression.body?.statements?.toList() ?: emptyList()
-
-            for (label in labels.drop( 1 )) {
-
-                val previous = statements.getOrNull( statements.indexOf( label ) - 1 ) ?: continue
-
-                edits.gap( previous, label, BLANK_LINE + indentation( label ) )
-
-            }
-
-            alignBranches(labels, edits)
-
-        }
-
-        return edits
-
-    }
-
-    /**
      * Pads gaps before arrows/colons to the widest single-line case prefix; multiline prefixes are skipped.
      *
      * @param branches case entries or switch labels in source order
@@ -376,19 +237,15 @@ internal class SyntaxLayout {
     /**
      * Plans Kotlin when/Java switch case spacing and aligned separators.
      *
-     * This revision supports the current layout contract; earlier revisions remain available.
-     *
      * @param source committed Java/Kotlin PSI file to inspect or format
      * @param options project preferences captured for the current operation
      *
      * @return unapplied edits against the current PSI snapshot
      *
-     * @see branches2
-     *
      * @author Mohammad ali Riazati
      * @since 1.0.0
      */
-    fun branches3(source: PsiFile, options: FormatOptions): TextEdits {
+    fun branches(source: PsiFile, options: FormatOptions): TextEdits {
 
         val edits = TextEdits()
 

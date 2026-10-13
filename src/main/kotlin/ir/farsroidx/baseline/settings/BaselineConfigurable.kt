@@ -53,7 +53,7 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
     /** Creates or reuses the form and initializes it from the current project preferences. */
     override fun createComponent(): JComponent {
 
-        return createComponent2()
+        return createSettingsPanel()
 
     }
 
@@ -69,17 +69,7 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
     /** Persists all displayed values; unopened forms leave existing preferences untouched. */
     override fun apply() {
 
-        val state = project.getService( BaselineSettings::class.java )
-            .snapshot()
-
-        for ( (option, control) in controls ) {
-
-            option.property.set( state, control.isSelected )
-
-        }
-
-        project.getService( BaselineSettings::class.java )
-            .loadState( state )
+        applySettings()
 
     }
 
@@ -113,79 +103,14 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
     }
 
     /**
-     * Retains the original settings form without profile import/export buttons.
+     * Handles formatting preferences with compatibility for the removed generated-source option.
      *
-     * @return initialized settings form
-     * @deprecated Use [createComponent2] for portable settings support.
-     * @see createComponent2
-     * @since 1.0.0
+     * Imported values remain pending in the form until Apply or OK.
+     *
+     * @author Mohammad ali Riazati
+     * @since 1.0.1
      */
-    @Deprecated( "Use createComponent2 instead." )
-    fun createComponent1(): JComponent {
-
-        panel?.let { return it }
-
-        val content = JPanel()
-
-        content.layout = BoxLayout(content, BoxLayout.Y_AXIS)
-
-        for ( (group, options) in FormatOption.entries.groupBy { it.group } ) {
-
-            val section = JPanel()
-
-            section.layout = BoxLayout(section, BoxLayout.Y_AXIS)
-
-            section.border = BorderFactory.createTitledBorder( group )
-
-            for (option in options) {
-
-                val checkbox = JCheckBox( option.label )
-
-                checkbox.toolTipText = option.description
-
-                controls[option] = checkbox
-
-                section.add( checkbox )
-
-            }
-
-            content.add( section )
-
-        }
-
-        val defaults = JButton( "Restore defaults" )
-
-        defaults.addActionListener { display( FormatOptions() ) }
-
-        val result = JPanel( BorderLayout() )
-
-        result.add(
-            JLabel( "Whole-file Java/Kotlin formatting. Disabled rules use IDE formatting." ), BorderLayout.NORTH
-        )
-
-        result.add( JScrollPane( content ), BorderLayout.CENTER )
-
-        result.add( defaults, BorderLayout.SOUTH )
-
-        panel = result
-
-        reset()
-
-        return result
-
-    }
-
-    /**
-     * Creates the current settings form with defaults and portable profile actions.
-     *
-     * Import updates the form only after successful validation. Export includes unapplied
-     * checkbox values. Both actions leave project persistence unchanged until Apply/OK.
-     *
-     * @return initialized settings form, reused until disposal
-     * @see createComponent1
-     * @since 1.0.0
-     */
-    fun createComponent2(): JComponent {
+    fun createSettingsPanel(): JComponent {
 
         panel?.let { return it }
 
@@ -235,13 +160,9 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
 
         export.toolTipText = "Export all displayed values, including unapplied changes."
 
-        export.toolTipText = "Export all displayed values, including unapplied changes."
-
         export.addActionListener { exportFile() }
 
         val importButton = JButton( "Import settings..." )
-
-        importButton.toolTipText = "Load a profile into this form; Apply or OK saves the imported values."
 
         importButton.toolTipText = "Load a profile into this form; Apply or OK saves the imported values."
 
@@ -271,9 +192,12 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
     }
 
     /**
-     * Validates [text] completely, then replaces the displayed preferences without saving them.
+     * Handles formatting preferences with compatibility for the removed generated-source option.
      *
-     * @throws IllegalArgumentException if the profile is malformed or unsupported; the form is unchanged
+     * Imported values remain pending in the form until Apply or OK.
+     *
+     * @author Mohammad ali Riazati
+     * @since 1.0.1
      */
     internal fun importProfile(text: String) {
 
@@ -340,7 +264,14 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
         }
     }
 
-    /** Imports a selected profile into the form only after the entire file is validated. */
+    /**
+     * Handles formatting preferences with compatibility for the removed generated-source option.
+     *
+     * Imported values remain pending in the form until Apply or OK.
+     *
+     * @author Mohammad ali Riazati
+     * @since 1.0.1
+     */
     private fun importFile() {
 
         val chooser = profileChooser( "Import Baseline settings" )
@@ -390,4 +321,22 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
         private const val XML_SUFFIX           = ".xml"
 
     }
+
+    /** Persists formatting preferences without changing Project view presentation. */
+    fun applySettings() {
+
+        val state = project.getService( BaselineSettings::class.java )
+            .snapshot()
+
+        for ( (option, control) in controls ) {
+
+            option.property.set( state, control.isSelected )
+
+        }
+
+        project.getService( BaselineSettings::class.java )
+            .loadState( state )
+
+    }
+
 }

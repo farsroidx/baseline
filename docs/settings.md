@@ -1,9 +1,9 @@
 # Baseline preferences
 
 Open **Settings / Editor / Baseline**. Preferences belong to the current project and are
-saved in `.idea/baseline.xml`. All options default to **enabled**, preserving the approved
-phase-one formatter behavior. Newly added options also default to enabled when loading an
-older state file.
+saved in `.idea/baseline.xml`. The 50 original options default to **enabled**, preserving the approved
+phase-one formatter behavior. Shared-prefix field grouping defaults to **disabled**.
+Missing preferences retain their individual defaults when loading older state files.
 
 Changes take effect after **Apply** or **OK**, on the next whole-file Reformat operation.
 **Restore defaults** changes the displayed form only; Apply/OK is still required to save it.
@@ -27,11 +27,14 @@ changes the form only: Reset discards it, and Cancel leaves saved project prefer
 Exporting does not save or alter the current project's preferences. Existing export destinations
 require overwrite confirmation. File cancellation leaves the form and saved preferences unchanged.
 
-All 50 options are exported with stable property names. Profiles contain no project path or
+All 51 options are exported with stable property names. Profiles contain no project path or
 source code. They do not export IntelliJ's code-style scheme, language right margins or save/Git
 preferences. Set matching Java/Kotlin right margins separately for matching wrapped output.
 
-Malformed XML, unsupported schema versions, unknown or duplicate options, invalid Boolean values
+The retired `showGeneratedSources` entry is validated and ignored when importing older profiles.
+New exports contain formatting preferences only.
+
+Malformed XML, unsupported schema versions, other unknown or duplicate options, invalid Boolean values
 and files larger than 64 KiB are rejected before any checkbox is changed. Missing options in a
 valid version-one profile retain enabled defaults. Only lower-case `true` and `false` are accepted.
 Document types and external entities are prohibited.
@@ -40,7 +43,7 @@ A minimal valid partial profile looks like this; normal exports include every op
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<baseline-settings formatVersion="1" pluginVersion="1.0.0">
+<baseline-settings formatVersion="1" pluginVersion="1.0.1">
     <option name="enabled" value="true"/>
     <option name="sortFields" value="false"/>
 </baseline-settings>
@@ -70,7 +73,8 @@ and case/lambda whitespace interacts with block-boundary whitespace.
 | Separate static and instance fields | Place static-like fields before instance fields within safe runs. | `separateStaticFields` |
 | Group fields by visibility | Order public, protected, internal/package and private visibility groups. | `groupFieldsByVisibility` |
 | Group fields by type | Keep matching types together within the enabled outer groups. | `groupFieldsByType` |
-| Sort fields by name length | Sort safe field groups from longest to shortest name. | `sortFields` |
+| Sort fields by name length | Sort safe field groups from longest to shortest declared type/name width. | `sortFields` |
+| Group fields by shared prefix | Group matching snake_case or camelCase prefixes inside each visibility/static section; disabled by default. | `groupFieldsByPrefix` |
 | Blank lines between field groups | Separate enabled field groups with one blank line. | `spaceFieldGroups` |
 | Align field equals signs | Align initializers within consecutive field groups. | `alignFieldEquals` |
 
@@ -78,8 +82,8 @@ and case/lambda whitespace interacts with block-boundary whitespace.
 
 | Option | Behavior when enabled | State property |
 | --- | --- | --- |
-| Sort independent constructor assignments | Order eligible assignments from shortest to longest target name. | `sortConstructorAssignments` |
-| Sort independent constructor locals | Order eligible local declarations from shortest to longest name. | `sortConstructorLocals` |
+| Sort independent constructor assignments | Order eligible assignments from shortest to longest declared type/name width. | `sortConstructorAssignments` |
+| Sort independent constructor locals | Order eligible local declarations from shortest to longest declared type/name width. | `sortConstructorLocals` |
 | Group constructor variables by type | Group eligible assignment and declaration runs by type. | `groupConstructorVariables` |
 
 ### Structure

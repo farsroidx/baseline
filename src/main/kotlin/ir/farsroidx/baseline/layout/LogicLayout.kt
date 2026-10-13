@@ -93,21 +93,13 @@ internal class LogicLayout {
     }
 
     /**
-     * Plans margin-aware control-condition formatting with preserved operand order.
+     * Plans inline or wrapped conditions whose operands can be rendered without blocks.
      *
-     * @param source committed Java/Kotlin PSI file to inspect or format
-     * @param margin maximum preferred column from the language code style
-     *
-     * @return unapplied edits against the current PSI snapshot
-     *
-     * @deprecated Use [conditions2] for the replacement revision.
-     * @see conditions2
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
+     * @param source committed Java or Kotlin PSI file
+     * @param margin preferred maximum column
+     * @return unapplied edits for safely rendered logical conditions
      */
-    @Deprecated( "Use conditions2 instead." )
-    fun conditions(source: PsiFile, margin: Int): TextEdits {
+    private fun simpleConditions(source: PsiFile, margin: Int): TextEdits {
 
         val edits = TextEdits()
 
@@ -164,24 +156,21 @@ internal class LogicLayout {
 
     }
 
+
     /**
      * Plans margin-aware control-condition formatting with preserved operand order.
-     *
-     * This revision supports the current layout contract; earlier revisions remain available.
      *
      * @param source committed Java/Kotlin PSI file to inspect or format
      * @param margin maximum preferred column from the language code style
      *
      * @return unapplied edits against the current PSI snapshot
      *
-     * @see conditions
-     *
      * @author Mohammad ali Riazati
      * @since 1.0.0
      */
-    fun conditions2(source: PsiFile, margin: Int): TextEdits {
+    fun conditions(source: PsiFile, margin: Int): TextEdits {
 
-        val edits = conditions(source, margin)
+        val edits = simpleConditions(source, margin)
 
         for (owner in PsiTreeUtil.collectElements( source ) { condition( it ) != null }) {
 

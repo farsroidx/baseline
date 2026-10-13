@@ -7,12 +7,13 @@ then Baseline applies the enabled custom rules. It does not replace the IDE's fo
 ## Install and use
 
 1. Build with `./gradlew.bat clean test buildPlugin --offline` on the configured Windows development host.
-2. Install `build/distributions/Baseline-1.0.0.zip` using Settings / Plugins / Install Plugin from Disk.
+2. Install `build/distributions/Baseline-1.0.1.zip` using Settings / Plugins / Install Plugin from Disk.
 3. Open **Settings / Editor / Baseline** and choose the project preferences.
 4. Configure each language's right margin under **Editor / Code Style**.
 5. Run **Code / Reformat Code** (`Ctrl+Alt+L`) with no fragment selected.
 
-All 50 Boolean options default to enabled. See [the settings reference](docs/settings.md) for
+The 50 original Boolean options default to enabled. Shared-prefix field grouping is an
+additional option, disabled by default. See [the settings reference](docs/settings.md) for
 individual switches, rule interactions and mandatory semantic safeguards.
 
 ## Share settings with your team
@@ -32,7 +33,7 @@ compatibility and cancellation details.
 
 - [Java example](src/main/resources/JavaSample.txt)
 - [Kotlin example](src/main/resources/KotlinSample.txt)
-- [1.0.0 changelog](CHANGELOG.md)
+- [Release changelog](CHANGELOG.md)
 
 Examples are distributed as text resources and are not compiled into sample classes.
 

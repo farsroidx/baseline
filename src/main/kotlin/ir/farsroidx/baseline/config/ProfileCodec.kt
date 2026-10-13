@@ -47,11 +47,17 @@ internal class ProfileCodec {
     }
 
     /**
-     * Validates an entire profile before returning a fresh preferences bean.
+     * Imports existing profiles while ignoring the retired generated-source preference.
      *
-     * @param text portable XML profile, at most [MAX_PROFILE_BYTES] UTF-8 bytes
-     * @return independent preferences; omitted options retain their enabled defaults
-     * @throws IllegalArgumentException for malformed, oversized or unsupported profiles
+     * Every entry still receives duplicate-name and Boolean validation. Other unknown names
+     * remain invalid. No project state changes until the caller applies the returned options.
+     *
+     * @param text bounded portable XML profile
+     * @return validated formatting preferences
+     * @throws IllegalArgumentException for malformed or unsupported entries
+     *
+     * @author Mohammad ali Riazati
+     * @since 1.0.1
      */
     fun decode(text: String): FormatOptions {
 
@@ -153,7 +159,7 @@ internal class ProfileCodec {
 
             val option = catalog[name]
 
-            require( option != null && imported.add( name ) ) {
+            require( (option != null || name == RETIRED_GENERATED_OPTION) && imported.add( name ) ) {
 
                 "Unknown or repeated preference: " + name
 
@@ -168,7 +174,7 @@ internal class ProfileCodec {
 
             }
 
-            option.property.set( options, value )
+            option?.property?.set( options, value )
 
         }
 
@@ -185,7 +191,9 @@ internal class ProfileCodec {
         private const val EXTERNAL_PARAMETER_ENTITIES = "http://xml.org/sax/features/external-parameter-entities"
         private const val EXTERNAL_GENERAL_ENTITIES   = "http://xml.org/sax/features/external-general-entities"
         private const val DISALLOW_DOCTYPE            = "http://apache.org/xml/features/disallow-doctype-decl"
-        private const val RELEASE_VERSION             = "1.0.0"
+        private const val RETIRED_GENERATED_OPTION = "showGeneratedSources"
+
+        private const val RELEASE_VERSION             = "1.0.1"
         private const val FORMAT_VERSION              = "formatVersion"
         private const val SCHEMA_VERSION              = "1"
         private const val PLUGIN_VERSION              = "pluginVersion"
