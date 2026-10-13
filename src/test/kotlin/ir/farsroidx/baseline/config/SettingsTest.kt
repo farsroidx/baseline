@@ -41,15 +41,15 @@ class SettingsTest : BasePlatformTestCase() {
 
         for (option in FormatOption.entries) {
 
-            assertTrue( option.property.get( options ) )
+            val original = option.property.get( options )
 
             val copy = options.snapshot()
 
-            option.property.set( copy, false )
+            option.property.set( copy, !original )
 
-            assertFalse( option.property.get( copy ) )
+            assertEquals( !original, option.property.get( copy ) )
 
-            assertTrue( option.property.get( options ) )
+            assertEquals( original, option.property.get( options ) )
 
         }
 

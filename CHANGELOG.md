@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.0.1 - 2026-10-13
+
+### Fixed
+
+- Measure field and safe constructor cascades using the declared type plus variable name.
+- Start assignment call chains at the receiver, retaining connected receivers for single calls.
+- Pack chained-call arguments against their continuation indentation and the language right margin.
+- Keep short Java ternary and Kotlin conditional branch chains inline; wrap overlong first calls as needed.
+
+### Added
+
+- Optional field grouping by shared snake_case or camelCase prefixes, disabled by default.
+
+### Internal cleanup
+
+- Remove superseded deprecated formatter revisions and use canonical names for current methods.
+- Route regression tests through the current implementation instead of historical pipelines.
+
+### Removed
+
+- Generated-source visibility preference, package decorations and Project view providers.
+  Baseline now contains formatting preferences only; tree presentation belongs to TreeView.
+- Existing settings profiles can still be imported; the retired generated-source entry is validated and ignored.
+
 ## 1.0.0 - 2026-10-12
 
 Initial stable release for Java and Kotlin formatting in IntelliJ IDEA.

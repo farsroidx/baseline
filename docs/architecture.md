@@ -21,13 +21,13 @@ and source-layout responsibilities separate without adding redundant abstraction
 
 ## Current entry points
 
-`FormatProcessor.processText` delegates to `processText9`. It checks the project master switch,
-language switches, reentry and whole-file range, then calls `Formatter.format9` with a settings
+`FormatProcessor.processText` checks the project master switch,
+language switches, reentry and whole-file range, then calls `Formatter.format` with a settings
 snapshot. `processElement` only redirects a complete `PsiFile`; element fragments stay native.
 The thread-local guard is removed in a `finally` block. The platform invokes this pipeline in
 its formatting/write-action context; direct callers of Formatter must own a write action.
 
-`format9` runs `formatPass8` at most four times, stopping when the file text no longer changes.
+`format` runs `formatPass` at most four times, stopping when the file text no longer changes.
 The cap prevents unbounded loops; it is not a mathematical convergence guarantee for every
 possible language construct. Tests cover stability for supported layouts and option changes.
 
@@ -118,12 +118,11 @@ They are plain resource text rather than production source files. Tests read the
 into fixtures named `JavaSample.java` and `KotlinSample.kt` to select the proper language parser.
 The release contains the text resources without compiled sample classes.
 
-## Versioned methods
+## Current methods
 
-Earlier behavior-changing revisions remain in source with idiomatic deprecation annotations,
-replacement references and KDoc. Current option-aware versions coexist with their predecessors.
-Legacy compatibility helpers deliberately still call older versions; the registered extension
-calls the current adapter. Deprecation warnings in the build are expected from retained paths.
+The final source contains one current implementation for each formatting operation.
+Superseded deprecated revisions have been removed, and current methods use canonical names.
+The registered extension and regression tests use the same current pipeline.
 
 ## Tests
 

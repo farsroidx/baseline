@@ -2,7 +2,7 @@
 
     <name>Baseline</name>
 
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <id>ir.farsroidx.baseline</id>
 
@@ -24,7 +24,7 @@
         </ul>
         <h3>Project preferences and sharing</h3>
         <p>
-            Open <strong>Settings / Editor / Baseline</strong> to configure 50 Boolean preferences.
+            Open <strong>Settings / Editor / Baseline</strong> to configure 51 Boolean preferences.
             All defaults preserve the phase-one layout. Use <strong>Export settings</strong> and
             <strong>Import settings</strong> to share a portable XML profile with your team.
             Imported preferences are saved only after Apply or OK.
@@ -65,6 +65,17 @@
     </extensions>
 
     <change-notes><![CDATA[
+        <h3>1.0.1 - Formatting fixes and scope cleanup</h3>
+        <ul>
+            <li>Remove generated-source visibility controls and Project view integration from Baseline.</li>
+            <li>Measure field cascades using the declared type and variable name.</li>
+            <li>Add optional grouping for fields sharing a snake_case or camelCase prefix.</li>
+            <li>Start assignment call chains at the receiver and pack arguments using the continuation width.</li>
+            <li>Keep short conditional-branch chains inline and wrap overlong branches at the right margin.</li>
+            <li>Preserve existing formatting preferences, argument order and conservative rearrangement safeguards.</li>
+            <li>Remove superseded deprecated revisions and give current methods canonical names.</li>
+        </ul>
+
         <h3>1.0.0 - Initial stable release</h3>
         <ul>
             <li>Java and Kotlin formatting integrated with the native whole-file Reformat Code pipeline.</li>

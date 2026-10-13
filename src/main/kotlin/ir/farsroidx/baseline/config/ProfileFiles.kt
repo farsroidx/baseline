@@ -9,12 +9,15 @@ import java.nio.file.StandardCopyOption
 internal class ProfileFiles {
 
     /**
-     * Reads and validates a profile without changing any stored project preferences.
+     * Reads a bounded profile with compatibility for the retired generated-source option.
      *
      * @param path file selected for import
-     * @return fully validated independent preferences
+     * @return validated formatting preferences without changing project state
      * @throws java.io.IOException if the file cannot be read
-     * @throws IllegalArgumentException if the file is oversized or invalid
+     * @throws IllegalArgumentException if the profile is oversized or invalid
+     *
+     * @author Mohammad ali Riazati
+     * @since 1.0.1
      */
     fun read(path: Path): FormatOptions {
 

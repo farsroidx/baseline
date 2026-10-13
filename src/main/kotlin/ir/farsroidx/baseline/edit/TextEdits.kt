@@ -17,7 +17,7 @@ internal class TextEdits {
     /**
      * Registers [replacement] for [range], superseding any earlier edit of the exact range.
      *
-     * No document changes occur until [apply2]. Ranges must belong to one committed snapshot.
+     * No document changes occur until [apply]. Ranges must belong to one committed snapshot.
      */
     fun replace(range: TextRange, replacement: String) {
 
@@ -65,52 +65,10 @@ internal class TextEdits {
      *
      * @throws IllegalStateException if collected ranges partially overlap
      *
-     * @deprecated Use [apply2] for the replacement revision.
-     * @see apply2
-     *
      * @author Mohammad ali Riazati
      * @since 1.0.0
      */
-    @Deprecated( "Use apply2 instead." )
     fun apply(document: Document) {
-
-        val ordered = replacements.entries.sortedByDescending { it.key.startOffset }
-
-        var boundary = document.textLength + 1
-
-        for ( (range, replacement) in ordered ) {
-
-            check( range.endOffset <= boundary ) { "Overlapping formatter edits." }
-
-            if (document.getText( range ) != replacement) {
-
-                document.replaceString( range.startOffset, range.endOffset, replacement )
-
-            }
-
-            boundary = range.startOffset
-
-        }
-    }
-
-    /**
-     * Applies a replacement batch to the document and commits PSI when a manager is supplied.
-     *
-     * This revision supports the current layout contract; earlier revisions remain available.
-     *
-     * Mutates the document from right to left. Already-applied edits are not rolled back
-     * if a later overlap check fails; the caller owns the write action.
-     *
-     * @param document document whose offsets match the collected replacement ranges
-     *
-     * @throws IllegalStateException if collected ranges partially overlap
-     *
-     * @see apply
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    fun apply2(document: Document) {
 
         val ordered =
             replacements.entries.sortedWith(

@@ -109,6 +109,8 @@ class FormatOptions {
     /** Run custom passes after the built-in formatter. */
     var enabled: Boolean                    = true
 
+    var groupFieldsByPrefix: Boolean = false
+
     /** Returns an independent copy; modifying it never changes the stored project state. */
     fun snapshot(): FormatOptions {
 

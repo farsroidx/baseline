@@ -24,74 +24,10 @@ internal class CallLayout {
      *
      * @return unapplied edits against the current PSI snapshot
      *
-     * @deprecated Use [receivers2] for the replacement revision.
-     * @see receivers2
-     *
      * @author Mohammad ali Riazati
      * @since 1.0.0
      */
-    @Deprecated( "Use receivers2 instead." )
     fun receivers(source: PsiFile, margin: Int): TextEdits {
-
-        val edits = TextEdits()
-
-        for (
-            expression in PsiTreeUtil
-                .collectElements( source ) {
-
-                    it is PsiMethodCallExpression ||
-                        it is KtQualifiedExpression && it.selectorExpression is KtCallExpression
-
-                }
-        ) {
-
-            val reference = if (expression is PsiMethodCallExpression) expression.methodExpression else expression
-
-            val children = reference.node
-                .getChildren( null )
-                .map { it.psi }
-                .filter { it !is PsiWhiteSpace }
-
-            val dot = children.firstOrNull { it.text == "." || it.text == "?." } ?: continue
-
-            val receiver = children.lastOrNull { it.textRange.endOffset <= dot.textRange.startOffset } ?: continue
-
-            val flat = SyntaxLayout().flatInline( expression ) ?: expression.text.replace( Regex( "\\s+" ), " " )
-
-            if (column( expression ) + flat.length <= margin && !expression.text.contains( '\n' )) {
-
-            continue
-            }
-
-            if (receiver.text.contains( '\n' )) {
-
-            continue
-            }
-
-            edits.gap( receiver, dot, NEW_LINE + indentation( expression ) + INDENT )
-
-        }
-
-        return edits
-
-    }
-
-    /**
-     * Plans simple-receiver attachment and margin-aware receiver breaks without rewriting true fluent chains.
-     *
-     * This revision supports the current layout contract; earlier revisions remain available.
-     *
-     * @param source committed Java/Kotlin PSI file to inspect or format
-     * @param margin maximum preferred column from the language code style
-     *
-     * @return unapplied edits against the current PSI snapshot
-     *
-     * @see receivers
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    fun receivers2(source: PsiFile, margin: Int): TextEdits {
 
         val edits = TextEdits()
 
@@ -158,162 +94,6 @@ internal class CallLayout {
             }
 
             edits.gap( receiver, dot, NEW_LINE + indentation( expression ) + INDENT )
-
-        }
-
-        return edits
-
-    }
-
-    /** Packs safe call arguments by width while retaining their original order. */
-    @Deprecated( "Use arguments2 instead." )
-    /**
-         * Packs safe argument lists into margin-limited continuation rows without changing their order.
-         *
-         * @param source committed Java/Kotlin PSI file to inspect or format
-         * @param margin maximum preferred column from the language code style
-         * @param level parameter-list nesting depth to process in this batch
-         *
-         * @return unapplied edits against the current PSI snapshot
-         *
-         * @author Mohammad ali Riazati
-         * @since 1.0.0
-         */
-    fun arguments(source: PsiFile, margin: Int, level: Int): TextEdits {
-
-        val edits = TextEdits()
-
-        val lists =
-            PsiTreeUtil
-                .findChildrenOfType( source, PsiExpressionList::class.java ) + PsiTreeUtil
-                .findChildrenOfType( source, KtValueArgumentList::class.java )
-
-        for (list in lists) {
-
-            val depth = generateSequence( list.parent ) { it.parent }
-                .count {
-
-                    it is PsiExpressionList || it is KtValueArgumentList || it is PsiParameterList ||
-                        it is KtParameterList
-
-                }
-
-            if (depth != level) {
-
-                continue
-            }
-
-            val owner = list.parent
-
-            val qualified = owner is PsiMethodCallExpression && owner.methodExpression.qualifierExpression != null ||
-                owner is KtCallExpression && owner.parent is KtQualifiedExpression
-
-            val function = owner.parent as? KtNamedFunction
-
-            val expressionBody = function != null && !function.hasBlockBody()
-
-            if (!qualified && !expressionBody && !list.text.contains( '\n' )) {
-
-                continue
-            }
-
-            val items: List<PsiElement> = when (list) {
-
-                is PsiExpressionList   -> list.expressions.toList()
-
-                is KtValueArgumentList -> list.arguments
-
-                else                   -> emptyList()
-
-            }
-
-            if (
-                items.isEmpty() ||
-                items.any {
-
-                    BlockLayout().hasChainedCall( it ) || it.text.contains( '\n' )
-
-                } ||
-                PsiTreeUtil.findChildrenOfType( list, PsiComment::class.java )
-                    .isNotEmpty()
-            ) {
-
-                continue
-            }
-
-            val texts = items.map { SyntaxLayout().flatInline( it ) }
-
-            if (
-                texts.any { it == null } ||
-                list.text
-                .trimEnd()
-                .endsWith( ",)" )
-            ) {
-
-                continue
-            }
-
-            val lastToken = list.node
-                .getChildren( null )
-                .map { it.psi }
-                .filter { it !is PsiWhiteSpace }
-                .dropLast( 1 )
-                .lastOrNull()
-
-            if (lastToken?.text == ",") {
-
-                continue
-            }
-
-            val flat = texts.filterNotNull()
-
-            val base = indentation( list )
-
-            val padding = if (qualified || expressionBody || flat.size == 1) " " else ""
-
-            val inline = "(" + padding + flat.joinToString( ", " ) + padding + ")"
-
-            val end = source.text
-                .indexOf( '\n', list.textRange.endOffset )
-                .let { if (it < 0) source.textLength else it }
-
-            val suffix = source.text
-                .substring( list.textRange.endOffset, end )
-                .substringBefore( '{' )
-
-            if (column( list ) + inline.length + suffix.length <= margin) {
-
-                edits.replace( list.textRange, inline )
-
-                continue
-            }
-
-            val rows = mutableListOf<String>()
-
-            var row = ""
-
-            for ( (index, text) in flat.withIndex() ) {
-
-                val value = text + if (index == flat.lastIndex) "" else ","
-
-                if (row.isNotEmpty() && base.length + INDENT.length + row.length + SPACE_WIDTH + value.length > margin) {
-
-                    rows.add( row )
-
-                    row = ""
-
-                }
-
-                row += (if (row.isEmpty()) "" else " ") + value
-
-            }
-
-            rows.add( row )
-
-            edits.replace(
-                list.textRange,
-                "(" + NEW_LINE + rows.joinToString( NEW_LINE ) { base + INDENT + it } + NEW_LINE + base + ")"
-            )
 
         }
 
@@ -604,63 +384,17 @@ internal class CallLayout {
 
     }
 
-    /** Separates Elvis fallbacks after multiline call expressions without changing their operands. */
-
-    /** Retains the previous behavior.
-     * @since 1.0.0
-     * @deprecated Use [fallbacks2].
-     * @see fallbacks2
-     */
-    @Deprecated( "Use fallbacks2 instead." )
-    /**
-         * Plans Kotlin Elvis placement for multiline left operands.
-         *
-         * @param source committed Java/Kotlin PSI file to inspect or format
-         *
-         * @return unapplied edits against the current PSI snapshot
-         *
-         * @author Mohammad ali Riazati
-         * @since 1.0.0
-         */
-    fun fallbacks(source: PsiFile): TextEdits {
-
-        val edits = TextEdits()
-
-        for (expression in PsiTreeUtil.findChildrenOfType( source, KtBinaryExpression::class.java )) {
-
-            if (expression.operationReference.text != "?:") {
-
-                continue
-            }
-
-            val left = expression.left ?: continue
-
-            if (left.text.contains( '\n' )) {
-
-                edits.gap( left, expression.operationReference, NEW_LINE + indentation( expression ) + INDENT )
-
-            }
-        }
-
-        return edits
-
-    }
-
     /**
      * Plans Kotlin Elvis placement for multiline left operands.
-     *
-     * This revision supports the current layout contract; earlier revisions remain available.
      *
      * @param source committed Java/Kotlin PSI file to inspect or format
      *
      * @return unapplied edits against the current PSI snapshot
      *
-     * @see fallbacks
-     *
      * @author Mohammad ali Riazati
      * @since 1.0.0
      */
-    fun fallbacks2(source: PsiFile): TextEdits {
+    fun fallbacks(source: PsiFile): TextEdits {
 
         val edits = TextEdits()
 
@@ -695,69 +429,17 @@ internal class CallLayout {
 
     }
 
-    /** Removes the extra blank line after an operand-free return in both supported languages. */
-
-    /** Retains the previous behavior.
-     * @since 1.0.0
-     * @deprecated Use [bareReturns2].
-     * @see bareReturns2
-     */
-    @Deprecated( "Use bareReturns2 instead." )
-    /**
-         * Removes the blank line before a closing brace after an operand-free exit.
-         *
-         * @param source committed Java/Kotlin PSI file to inspect or format
-         *
-         * @return unapplied edits against the current PSI snapshot
-         *
-         * @author Mohammad ali Riazati
-         * @since 1.0.0
-         */
-    fun bareReturns(source: PsiFile): TextEdits {
-
-        val edits = TextEdits()
-
-        for (
-            statement in PsiTreeUtil
-                .collectElements( source ) {
-
-                    it is PsiReturnStatement && it.returnValue == null ||
-                        it is KtReturnExpression && it.returnedExpression == null
-
-                }
-        ) {
-
-            var next = statement.nextSibling
-
-            while (next is PsiWhiteSpace) {
-
-            next = next.nextSibling
-
-            }
-
-            if (next?.text == "}") edits.gap( statement, next, NEW_LINE + indentation( next ) )
-
-        }
-
-        return edits
-
-    }
-
     /**
      * Removes the blank line before a closing brace after an operand-free exit.
-     *
-     * This revision supports the current layout contract; earlier revisions remain available.
      *
      * @param source committed Java/Kotlin PSI file to inspect or format
      *
      * @return unapplied edits against the current PSI snapshot
      *
-     * @see bareReturns
-     *
      * @author Mohammad ali Riazati
      * @since 1.0.0
      */
-    fun bareReturns2(source: PsiFile): TextEdits {
+    fun bareReturns(source: PsiFile): TextEdits {
 
         val edits = TextEdits()
 
@@ -831,8 +513,6 @@ internal class CallLayout {
     /**
      * Packs safe argument lists into margin-limited continuation rows without changing their order.
      *
-     * This revision supports the current layout contract; earlier revisions remain available.
-     *
      * @param source committed Java/Kotlin PSI file to inspect or format
      * @param margin maximum preferred column from the language code style
      * @param level parameter-list nesting depth to process in this batch
@@ -840,12 +520,10 @@ internal class CallLayout {
      *
      * @return unapplied edits against the current PSI snapshot
      *
-     * @see arguments
-     *
      * @author Mohammad ali Riazati
      * @since 1.0.0
      */
-    fun arguments2(source: PsiFile, margin: Int, level: Int, options: FormatOptions): TextEdits {
+    fun arguments(source: PsiFile, margin: Int, level: Int, options: FormatOptions): TextEdits {
 
         val edits = TextEdits()
 

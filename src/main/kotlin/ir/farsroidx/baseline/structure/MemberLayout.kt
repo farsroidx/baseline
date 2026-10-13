@@ -22,270 +22,6 @@ import org.jetbrains.kotlin.psi.*
 internal class MemberLayout {
 
     /**
-     * Plans legacy visibility/type ordering of independent field declarations.
-     *
-     * @param source committed Java/Kotlin PSI file to inspect or format
-     *
-     * @return unapplied edits against the current PSI snapshot
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    fun fields(source: PsiFile): TextEdits {
-
-        val edits = TextEdits()
-
-        for (container in containers( source )) {
-
-            var run = mutableListOf<FieldEntry>()
-
-            /**
-             * Emits the accumulated independent run, then clears it before the next semantic barrier.
-             *
-             * @author Mohammad ali Riazati
-             * @since 1.0.0
-             */
-            fun flush() {
-
-                reorderFields(run, edits)
-
-                run = mutableListOf()
-
-            }
-
-            for (child in container.children) {
-
-                if (child is PsiWhiteSpace || child.text == ";") {
-
-                    continue
-                }
-
-                val entry = field( child )
-
-                if (entry == null || !entry.movable) flush() else run.add( entry )
-
-            }
-
-            flush()
-
-        }
-
-        return edits
-
-    }
-
-    /**
-     * Plans ascending-name-length ordering of eligible constructor field-assignment runs.
-     *
-     * @param source committed Java/Kotlin PSI file to inspect or format
-     *
-     * @return unapplied edits against the current PSI snapshot
-     *
-     * @deprecated Use [assignments2] for the replacement revision.
-     * @see assignments2
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    @Deprecated( "Use assignments2 instead." )
-    fun assignments(source: PsiFile): TextEdits {
-
-        val edits = TextEdits()
-
-        for (method in PsiTreeUtil.findChildrenOfType( source, PsiMethod::class.java )) {
-
-            if (!method.isConstructor) {
-
-                continue
-            }
-
-            val statements = method.body?.statements?.toList() ?: continue
-
-            val fields = method.containingClass?.fields?.associateBy { it.name } ?: continue
-
-            val parameters = method.parameterList.parameters
-                .map { it.name }
-                .toSet()
-
-            reorderAssignments(statements, edits) { statement ->
-
-                val assignment = (statement as? PsiExpressionStatement)?.expression as? PsiAssignmentExpression
-
-                val reference = assignment?.lExpression as? PsiReferenceExpression
-
-                val target = fields[reference?.referenceName]
-
-                val qualifier = reference?.qualifierExpression
-
-                val right = assignment?.rExpression
-
-                if (
-                    assignment?.operationSign?.text == "=" && qualifier is PsiThisExpression && target != null &&
-                    !target.hasModifierProperty( PsiModifier.VOLATILE ) &&
-                    (right is PsiLiteralExpression ||
-                    right is PsiReferenceExpression && right.qualifierExpression == null &&
-                    right.referenceName in parameters)
-                ) {
-
-                    target.name to target.type.canonicalText
-
-                } else null
-
-            }
-        }
-        for (constructor in PsiTreeUtil.findChildrenOfType( source, KtSecondaryConstructor::class.java )) {
-
-            val statements = constructor.bodyExpression?.statements ?: continue
-
-            val properties =
-                constructor.getContainingClassOrObject().body?.properties?.associateBy { it.name } ?: continue
-
-            val parameters = constructor.valueParameters
-                .mapNotNull { it.name }
-                .toSet()
-
-            reorderAssignments(statements, edits) { statement ->
-
-                val assignment = statement as? KtBinaryExpression
-
-                val targetExpression = assignment?.left as? KtDotQualifiedExpression
-
-                val name = (targetExpression?.selectorExpression as? KtNameReferenceExpression)?.getReferencedName()
-
-                val property = properties[name]
-
-                val right = assignment?.right
-
-                if (
-                    assignment?.operationToken == KtTokens.EQ &&
-                    targetExpression?.receiverExpression is KtThisExpression && property != null && property.isVar &&
-                    property.accessors.isEmpty() && !property.hasDelegate() && property.annotationEntries.isEmpty() &&
-                    !property.hasModifier( KtTokens.OPEN_KEYWORD ) &&
-                    !property.hasModifier( KtTokens.OVERRIDE_KEYWORD ) &&
-                    (isLiteral( right ) || right is KtNameReferenceExpression && right.getReferencedName() in parameters)
-                ) {
-
-                    name!! to (property.typeReference?.text ?: inferredType( property.initializer ))
-
-                } else null
-
-            }
-        }
-
-        return edits
-
-    }
-
-    /**
-     * Applies the current layout rules.
-     *
-     * @since 1.0.0
-     * @see assignments
-     */
-    @Deprecated( "Use assignments3 instead." )
-    /**
-         * Plans ascending-name-length ordering of eligible constructor field-assignment runs.
-         *
-         * This revision supports the current layout contract; earlier revisions remain available.
-         *
-         * @param source committed Java/Kotlin PSI file to inspect or format
-         *
-         * @return unapplied edits against the current PSI snapshot
-         *
-         * @see assignments
-         *
-         * @author Mohammad ali Riazati
-         * @since 1.0.0
-         */
-    fun assignments2(source: PsiFile): TextEdits {
-
-        val edits = TextEdits()
-
-        for (method in PsiTreeUtil.findChildrenOfType( source, PsiMethod::class.java )) {
-
-            if (!method.isConstructor) {
-
-                continue
-            }
-
-            val statements = method.body?.statements?.toList() ?: continue
-
-            val fields = method.containingClass?.fields?.associateBy { it.name } ?: continue
-
-            val parameters = method.parameterList.parameters
-                .map { it.name }
-                .toSet()
-
-            reorderAssignments2(statements, edits) { statement ->
-
-                val assignment = (statement as? PsiExpressionStatement)?.expression as? PsiAssignmentExpression
-
-                val reference = assignment?.lExpression as? PsiReferenceExpression
-
-                val target = fields[reference?.referenceName]
-
-                val qualifier = reference?.qualifierExpression
-
-                val right = assignment?.rExpression
-
-                if (
-                    assignment?.operationSign?.text == "=" && qualifier is PsiThisExpression && target != null &&
-                    !target.hasModifierProperty( PsiModifier.VOLATILE ) &&
-                    (right is PsiLiteralExpression ||
-                    right is PsiReferenceExpression && right.qualifierExpression == null &&
-                    right.referenceName in parameters)
-                ) {
-
-                    target.name to target.type.canonicalText
-
-                } else null
-
-            }
-        }
-        for (constructor in PsiTreeUtil.findChildrenOfType( source, KtSecondaryConstructor::class.java )) {
-
-            val statements = constructor.bodyExpression?.statements ?: continue
-
-            val properties =
-                constructor.getContainingClassOrObject().body?.properties?.associateBy { it.name } ?: continue
-
-            val parameters = constructor.valueParameters
-                .mapNotNull { it.name }
-                .toSet()
-
-            reorderAssignments2(statements, edits) { statement ->
-
-                val assignment = statement as? KtBinaryExpression
-
-                val targetExpression = assignment?.left as? KtDotQualifiedExpression
-
-                val name = (targetExpression?.selectorExpression as? KtNameReferenceExpression)?.getReferencedName()
-
-                val property = properties[name]
-
-                val right = assignment?.right
-
-                if (
-                    assignment?.operationToken == KtTokens.EQ &&
-                    targetExpression?.receiverExpression is KtThisExpression && property != null && property.isVar &&
-                    property.accessors.isEmpty() && !property.hasDelegate() && property.annotationEntries.isEmpty() &&
-                    !property.hasModifier( KtTokens.OPEN_KEYWORD ) &&
-                    !property.hasModifier( KtTokens.OVERRIDE_KEYWORD ) &&
-                    (isLiteral( right ) || right is KtNameReferenceExpression && right.getReferencedName() in parameters)
-                ) {
-
-                    name!! to (property.typeReference?.text ?: inferredType( property.initializer ))
-
-                } else null
-
-            }
-        }
-
-        return edits
-
-    }
-
-    /**
      * Orders contiguous Java/Kotlin modifier tokens without crossing annotation boundaries.
      *
      * @param source committed Java/Kotlin PSI file to inspect or format
@@ -353,90 +89,6 @@ internal class MemberLayout {
             }
 
             flush()
-
-        }
-
-        return edits
-
-    }
-
-    /**
-     * Retains the previous layout behavior.
-     *
-     * @deprecated Use [localVariables2] instead.
-     * @see localVariables2
-     */
-    @Deprecated( "Use localVariables2 instead." )
-    /**
-         * Plans ascending-name-length ordering of safe constructor-local declaration runs.
-         *
-         * @param source committed Java/Kotlin PSI file to inspect or format
-         *
-         * @return unapplied edits against the current PSI snapshot
-         *
-         * @author Mohammad ali Riazati
-         * @since 1.0.0
-         */
-    fun localVariables(source: PsiFile): TextEdits {
-
-        val edits = TextEdits()
-
-        for (method in PsiTreeUtil.findChildrenOfType( source, PsiMethod::class.java )) {
-
-            if (method.isConstructor) {
-
-                reorderAssignments(method.body?.statements?.toList() ?: emptyList(), edits, ::localVariable)
-
-            }
-        }
-
-        for (constructor in PsiTreeUtil.findChildrenOfType( source, KtSecondaryConstructor::class.java )) {
-
-            reorderAssignments(constructor.bodyExpression?.statements ?: emptyList(), edits, ::localVariable)
-
-        }
-
-        return edits
-
-    }
-
-    /**
-     * Applies the current layout rules.
-     *
-     * @since 1.0.0
-     * @see localVariables
-     */
-    @Deprecated( "Use localVariables3 instead." )
-    /**
-         * Plans ascending-name-length ordering of safe constructor-local declaration runs.
-         *
-         * This revision supports the current layout contract; earlier revisions remain available.
-         *
-         * @param source committed Java/Kotlin PSI file to inspect or format
-         *
-         * @return unapplied edits against the current PSI snapshot
-         *
-         * @see localVariables
-         *
-         * @author Mohammad ali Riazati
-         * @since 1.0.0
-         */
-    fun localVariables2(source: PsiFile): TextEdits {
-
-        val edits = TextEdits()
-
-        for (method in PsiTreeUtil.findChildrenOfType( source, PsiMethod::class.java )) {
-
-            if (method.isConstructor) {
-
-                reorderAssignments2(method.body?.statements?.toList() ?: emptyList(), edits, ::localVariable)
-
-            }
-        }
-
-        for (constructor in PsiTreeUtil.findChildrenOfType( source, KtSecondaryConstructor::class.java )) {
-
-            reorderAssignments2(constructor.bodyExpression?.statements ?: emptyList(), edits, ::localVariable)
 
         }
 
@@ -569,235 +221,6 @@ internal class MemberLayout {
 
     }
 
-    /**
-     * Appends descending-name-length field edits to the supplied batch.
-     *
-     * @param fields independent field declarations in original source order
-     * @param edits batch receiving planned replacements; the source document is not changed here
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    private fun reorderFields(fields: List<FieldEntry>, edits: TextEdits) {
-
-        if (fields.size < 2) {
-
-            return
-        }
-
-        val sorted = fields.sortedWith(
-            compareBy<FieldEntry> { it.group.access }.thenBy { it.group.type.lowercase() }
-                .thenByDescending { it.name.length }
-        )
-
-        val replacement = sorted
-            .mapIndexed { index, entry ->
-
-                val separator = if (index == 0) "" else if (sorted[index - 1].group == entry.group) "\n" else "\n\n"
-
-                separator + entry.element.text
-
-            }
-            .joinToString( "" )
-
-        edits.replace(
-            TextRange(fields.first().element.textRange.startOffset, fields.last().element.textRange.endOffset),
-            replacement
-        )
-
-    }
-
-    /**
-     * Retains the previous layout behavior.
-     *
-     * @deprecated Use [reorderAssignments2] instead.
-     * @see reorderAssignments2
-     */
-    @Deprecated( "Use reorderAssignments2 instead." )
-    /**
-     * Collects independent constructor runs, then appends their grouped ascending-name-length replacements.
-     *
-     * @param statements statements in original execution order
-     * @param edits batch receiving planned replacements; the source document is not changed here
-     * @param describe eligibility callback returning a name/type pair or null for a barrier
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    private fun reorderAssignments(
-        statements: List<PsiElement>,
-        edits: TextEdits,
-        describe: (PsiElement) -> Pair<String, String>?
-    ) {
-
-        var run = mutableListOf<Pair<PsiElement, Pair<String, String>>>()
-
-        /**
-         * Emits the accumulated independent run, then clears it before the next semantic barrier.
-         *
-         * @author Mohammad ali Riazati
-         * @since 1.0.0
-         */
-        fun flush() {
-
-            if (
-                run.size > 1 &&
-                run.map { it.second.first }
-                .distinct().size == run.size
-            ) {
-
-                val sorted =
-                    run.sortedWith(
-                        compareBy<Pair<PsiElement, Pair<String, String>>> { it.second.second.lowercase() }
-                            .thenBy { it.second.first.length }
-                    )
-
-                val replacement = sorted
-                    .mapIndexed { index, entry ->
-
-                        val separator =
-                            if (index == 0) "" else if (sorted[index - 1].second.second == entry.second.second) "\n" else "\n\n"
-
-                        separator + entry.first.text
-
-                    }
-                    .joinToString( "" )
-
-                edits.replace(
-                    TextRange(run.first().first.textRange.startOffset, run.last().first.textRange.endOffset),
-                    replacement
-                )
-
-            }
-
-            run = mutableListOf()
-
-        }
-
-        for (statement in statements) {
-
-            val previous = run.lastOrNull()?.first
-
-            val description = describe( statement )
-
-            if (
-                description == null ||
-                previous != null && !between( previous, statement )
-                    .all { it.isWhitespace() || it == ';' }
-            ) {
-
-                flush()
-
-            }
-
-            if (description != null) run.add( statement to description )
-
-        }
-
-        flush()
-
-    }
-
-    /**
-     * Applies the current layout rules.
-     *
-     * @since 1.0.0
-     * @see reorderAssignments
-     */
-    @Deprecated( "Use reorderAssignments3 instead." )
-    /**
-     * Collects independent constructor runs, then appends their grouped ascending-name-length replacements.
-     *
-     * This revision supports the current layout contract; earlier revisions remain available.
-     *
-     * @param statements statements in original execution order
-     * @param edits batch receiving planned replacements; the source document is not changed here
-     * @param describe eligibility callback returning a name/type pair or null for a barrier
-     *
-     * @see reorderAssignments
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    private fun reorderAssignments2(
-        statements: List<PsiElement>,
-        edits: TextEdits,
-        describe: (PsiElement) -> Pair<String, String>?
-    ) {
-
-        var run = mutableListOf<Pair<PsiElement, Pair<String, String>>>()
-
-        /**
-         * Emits the accumulated independent run, then clears it before the next semantic barrier.
-         *
-         * @author Mohammad ali Riazati
-         * @since 1.0.0
-         */
-        fun flush() {
-
-            if (
-                run.size > 1 &&
-                run.map { it.second.first }
-                .distinct().size == run.size
-            ) {
-
-                val widths = run.groupBy { it.second.second }
-                    .mapValues { (_, entries) ->
-                        entries.minOf { it.second.first.length }
-
-                    }
-
-                val sorted = run.sortedWith(
-                    compareBy<Pair<PsiElement, Pair<String, String>>> { widths[it.second.second] }
-                        .thenBy { it.second.second.lowercase() }
-                        .thenBy { it.second.first.length }
-                )
-
-                val replacement = sorted
-                    .mapIndexed { index, entry ->
-
-                        val separator =
-                            if (index == 0) "" else if (sorted[index - 1].second.second == entry.second.second) "\n" else "\n\n"
-
-                        separator + entry.first.text
-
-                    }
-                    .joinToString( "" )
-
-                edits.replace(
-                    TextRange(run.first().first.textRange.startOffset, run.last().first.textRange.endOffset),
-                    replacement
-                )
-
-            }
-
-            run = mutableListOf()
-
-        }
-
-        for (statement in statements) {
-
-            val previous = run.lastOrNull()?.first
-
-            val description = describe( statement )
-
-            if (
-                description == null ||
-                previous != null && !between( previous, statement )
-                    .all { it.isWhitespace() || it == ';' }
-            ) {
-
-                flush()
-
-            }
-
-            if (description != null) run.add( statement to description )
-
-        }
-
-        flush()
-
-    }
 
     /**
      * Returns source text strictly between two ordered PSI elements.
@@ -879,23 +302,7 @@ internal class MemberLayout {
             .all { it is KtLiteralStringTemplateEntry }
     }
 
-    /**
-     * Collects independent constructor runs, then appends their grouped ascending-name-length replacements.
-     *
-     * This revision supports the current layout contract; earlier revisions remain available.
-     *
-     * @param statements statements in original execution order
-     * @param edits batch receiving planned replacements; the source document is not changed here
-     * @param options project preferences captured for the current operation
-     * @param sort whether eligible names are ordered by ascending length
-     * @param describe eligibility callback returning a name/type pair or null for a barrier
-     *
-     * @see reorderAssignments2
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
-     */
-    private fun reorderAssignments3(
+    private fun reorderAssignments(
         statements: List<PsiElement>,
         edits: TextEdits,
         options: FormatOptions,
@@ -921,7 +328,7 @@ internal class MemberLayout {
 
                 val widths = run.groupBy { it.second.second }
                     .mapValues { (_, entries) ->
-                        entries.minOf { it.second.first.length }
+                        entries.minOf { constructorWidth(it.first, it.second) }
 
                     }
 
@@ -931,7 +338,7 @@ internal class MemberLayout {
                         if (options.groupConstructorVariables && sort) widths[it.second.second] else 0
 
                     }.thenBy { if (options.groupConstructorVariables) it.second.second.lowercase() else "" }
-                        .thenBy { if (sort) it.second.first.length else 0 }
+                        .thenBy { if (sort) constructorWidth(it.first, it.second) else 0 }
                 )
 
                 val replacement = sorted
@@ -984,21 +391,13 @@ internal class MemberLayout {
     }
 
     /**
-     * Plans ascending-name-length ordering of eligible constructor field-assignment runs.
+     * Sorts eligible independent constructor assignment runs by ascending declared type/name width.
      *
-     * This revision supports the current layout contract; earlier revisions remain available.
-     *
-     * @param source committed Java/Kotlin PSI file to inspect or format
-     * @param options project preferences captured for the current operation
-     *
-     * @return unapplied edits against the current PSI snapshot
-     *
-     * @see assignments2
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
+     * @param source committed Java or Kotlin PSI file
+     * @param options constructor sorting and grouping preferences
+     * @return unapplied edits that preserve parameter order and business-statement barriers
      */
-    fun assignments3(source: PsiFile, options: FormatOptions): TextEdits {
+    fun assignments(source: PsiFile, options: FormatOptions): TextEdits {
 
         val edits = TextEdits()
 
@@ -1017,7 +416,7 @@ internal class MemberLayout {
                 .map { it.name }
                 .toSet()
 
-            reorderAssignments3(statements, edits, options, options.sortConstructorAssignments) { statement ->
+            reorderAssignments(statements, edits, options, options.sortConstructorAssignments) { statement ->
 
                 val assignment = (statement as? PsiExpressionStatement)?.expression as? PsiAssignmentExpression
 
@@ -1054,7 +453,7 @@ internal class MemberLayout {
                 .mapNotNull { it.name }
                 .toSet()
 
-            reorderAssignments3(statements, edits, options, options.sortConstructorAssignments) { statement ->
+            reorderAssignments(statements, edits, options, options.sortConstructorAssignments) { statement ->
 
                 val assignment = statement as? KtBinaryExpression
 
@@ -1087,21 +486,13 @@ internal class MemberLayout {
     }
 
     /**
-     * Plans ascending-name-length ordering of safe constructor-local declaration runs.
+     * Groups and sorts eligible constructor-local declarations without reordering ordinary method bodies.
      *
-     * This revision supports the current layout contract; earlier revisions remain available.
-     *
-     * @param source committed Java/Kotlin PSI file to inspect or format
-     * @param options project preferences captured for the current operation
-     *
-     * @return unapplied edits against the current PSI snapshot
-     *
-     * @see localVariables2
-     *
-     * @author Mohammad ali Riazati
-     * @since 1.0.0
+     * @param source committed Java or Kotlin PSI file
+     * @param options constructor-local grouping and sorting preferences
+     * @return unapplied edits for safe declaration runs only
      */
-    fun localVariables3(source: PsiFile, options: FormatOptions): TextEdits {
+    fun localVariables(source: PsiFile, options: FormatOptions): TextEdits {
 
         val edits = TextEdits()
 
@@ -1109,7 +500,7 @@ internal class MemberLayout {
 
             if (method.isConstructor) {
 
-                reorderAssignments3(
+                reorderAssignments(
                     method.body?.statements?.toList() ?: emptyList(), edits, options, options.sortConstructorLocals,
                     ::localVariable
                 )
@@ -1119,7 +510,7 @@ internal class MemberLayout {
 
         for (constructor in PsiTreeUtil.findChildrenOfType( source, KtSecondaryConstructor::class.java )) {
 
-            reorderAssignments3(
+            reorderAssignments(
                 constructor.bodyExpression?.statements ?: emptyList(), edits, options, options.sortConstructorLocals,
                 ::localVariable
             )
@@ -1127,6 +518,44 @@ internal class MemberLayout {
         }
 
         return edits
+
+    }
+
+    private fun constructorWidth(element: PsiElement, description: Pair<String, String>): Int {
+
+        val type = when (element) {
+
+            is PsiDeclarationStatement -> {
+
+                val variable = element.declaredElements.singleOrNull() as? PsiLocalVariable
+
+                if (variable?.typeElement?.text == "var") variable.type.presentableText else variable?.typeElement?.text
+
+            }
+
+            is PsiExpressionStatement  -> {
+
+                val method = PsiTreeUtil.getParentOfType( element, PsiMethod::class.java )
+
+                method?.containingClass?.fields?.firstOrNull { it.name == description.first }?.typeElement?.text
+
+            }
+
+            is KtProperty              -> element.typeReference?.text
+
+            is KtBinaryExpression      -> {
+
+                val owner = PsiTreeUtil.getParentOfType( element, KtClassOrObject::class.java )
+
+                owner?.body?.properties?.firstOrNull { it.name == description.first }?.typeReference?.text
+
+            }
+
+            else                       -> null
+
+        }
+
+        return CascadeWidth.measure( type ?: description.second, description.first )
 
     }
 
