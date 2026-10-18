@@ -417,6 +417,8 @@ internal class SpaceLayout {
 
             val lines = when {
 
+                !options.spaceConstructorAssignments && constructor && first != null && second != null -> SINGLE_LINE
+
                 options.groupConstructorVariables && constructor && first != null && second != null &&
                     first.second == second.second                                 -> SINGLE_LINE
 

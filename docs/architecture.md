@@ -1,139 +1,71 @@
 # Implementation guide
 
-## Packages
+## Responsibilities
 
 | Package | Responsibility |
 | --- | --- |
-| `config` | Boolean state, option catalog, project persistence and portable XML/file transfer |
-| `settings` | Settings form, profile actions and Apply/Reset/defaults lifecycle |
-| `integration` | Native PostFormatProcessor adapter, language/range checks and reentry guard |
-| `format` | Bounded orchestration and temporary native code-style overrides |
-| `structure` | Conservative field and constructor-run rearrangement, metadata and modifiers |
-| `layout` | PSI-based whitespace, call/chain, condition, case, annotation and boundary planners |
-| `edit` | Deferred replacement batches applied against a single PSI snapshot |
-| `model` | Field group identity and field eligibility metadata |
-| `resources/*.txt` | Java/Kotlin examples loaded as test fixtures and distributed as text |
+| `config` | Boolean state, option catalog, project persistence and portable profiles |
+| `settings` | Categorized form, live preview, option targets and Apply/Reset/import/export |
+| `integration` | Whole-file Java/Kotlin adapter and recursive-formatting guard |
+| `format` | Bounded formatter passes and temporary native code-style overrides |
+| `structure` | Safe field/constructor grouping, ordering, alignment and modifier metadata |
+| `layout` | PSI-based spacing, argument padding, wrapping, chains, conditions and annotations |
+| `edit` | Range-based edit batches applied from right to left |
+| `model` | Field grouping and eligibility data |
 
-The shared option catalog acts as metadata for copying state, constructing the Settings form
-and documenting preference coverage. The settings service owns persistence; layout planners
-consume snapshots and do not depend on Swing or storage. This keeps presentation, integration
-and source-layout responsibilities separate without adding redundant abstraction layers.
+## Formatting
 
-## Current entry points
+`FormatProcessor.processText` captures a settings snapshot and checks the master/language
+switches, whole-file range and reentry guard. `Formatter.format` runs at most four passes,
+stopping when text stabilizes. It skips syntax-error files and enabled formatter-off regions.
 
-`FormatProcessor.processText` checks the project master switch,
-language switches, reentry and whole-file range, then calls `Formatter.format` with a settings
-snapshot. `processElement` only redirects a complete `PsiFile`; element fragments stay native.
-The thread-local guard is removed in a `finally` block. The platform invokes this pipeline in
-its formatting/write-action context; direct callers of Formatter must own a write action.
+Each pass rearranges eligible declarations, applies temporary native code style, then runs
+specialized layout planners. Edits are committed before the next planner reads PSI.
+`ArgumentSpacing` resolves call and annotation-array padding after wrapping and boundary rules.
+Native temporary settings and the reentry guard are restored in `finally` blocks.
 
-`format` runs `formatPass` at most four times, stopping when the file text no longer changes.
-The cap prevents unbounded loops; it is not a mathematical convergence guarantee for every
-possible language construct. Tests cover stability for supported layouts and option changes.
+Field cascades measure the declared type plus variable name. Constructor cascades use the
+reverse direction within eligible independent runs. Comments, business calls, repeated writes
+and unsafe initializers form barriers. Ordinary method statements and signature/argument order
+are never rearranged. `TextEdits` rejects partial overlap and preserves non-whitespace gaps.
 
-## Pass sequence
+## Settings and preview
 
-1. Reject syntax errors and enabled formatter-off regions. Obtain/unblock/commit the document.
-2. Plan eligible field grouping/sorting, independent constructor assignments/locals and modifiers.
-3. Clone the language code style and apply enabled native indentation/brace/wrapping overrides.
-   Disable native rearrangement, run native formatting and restore temporary state in `finally`.
-4. Commit PSI. Plan block, member, statement and file-section whitespace.
-5. Normalize parameter lists from inner depth to outer depth, then apply the real right margin.
-   Chain links are refreshed between depth levels when enabled.
-6. Apply statement/brace, condition/annotation/case and field-equals layout.
-7. Apply safe branch simplification, receiver attachment, argument packing, expression bodies,
-   control headers, bare exits and Elvis fallbacks.
-8. Apply assignment receiver, lambda, logical-condition and logical-expression layout.
-9. Resolve explicitly disabled boundary spacing and optionally remove trailing file whitespace.
+`BaselineSettings` stores project preferences in `.idea/baseline.xml`. `FormatOption` supplies
+stable keys, labels, groups and descriptions; snapshots copy every catalog value.
+Shared-prefix grouping defaults to false; other preferences default to true.
 
-Each batch is applied and committed before a following planner observes PSI. Some passes touch
-the same boundary; ordering is intentional. Closing-brace compaction and bare-exit compaction
-can override general trailing blank lines. The final preference pass removes block blanks
-explicitly disabled in Settings.
+Checkboxes edit the form only. Apply/OK saves, Reset reloads, and Restore defaults edits the
+form without saving. Import validates before updating controls; Export includes pending edits.
 
-## Rearrangement safety
+`BaselineConfigurable` implements `Configurable.NoScroll`. `SettingsPanel` also tracks both
+viewport dimensions if a host wraps it. The option lists and IDE preview editor scroll inside
+their own bounds; headers and action buttons remain visible.
 
-Field eligibility is syntactic: Java fields must be single declarations with absent/literal
-initializers; Kotlin properties must have no delegate/custom accessors and absent/literal
-initializers. Visibility and type groups are conservative text/type keys, not an import
-optimizer or whole-program dependency analysis.
+`FormatPreview` coalesces changes with a 250 ms Swing timer and formats fresh in-memory PSI
+samples from `resources/preview`. A file-local options key supplies pending preferences without
+changing the project service. Formatting runs under a write action on the event dispatch thread.
+`PreviewTarget` maps every option to its example and selects a required language when needed.
+The example is highlighted for 1.4 seconds, even when the current rules produce no layout change.
+Unchanged refreshes without an option selection preserve the current code position.
+Disposal stops timers and releases the IDE editor. Preview failures are reported in the UI/log.
 
-Constructor assignment sorting accepts this-qualified assignments to eligible fields using
-literals or original constructor parameter references. Kotlin open/override properties,
-custom setters, delegates and annotations, and Java volatile fields are excluded. Duplicate
-assignment names prevent run sorting. Comments/business statements are barriers. Local
-constructor declarations are similarly limited to safe initializers. Statements in ordinary
-methods are never rearranged. Parameter and argument order is never changed.
+## Profiles
 
-`SpaceLayout.reads`/`writes` use names for immediate statement spacing, not semantic data-flow
-analysis. They do not authorize rearrangement of arbitrary business code.
+Profiles use UTF-8 XML schema version 1 with stable option property names. The plugin version
+is informational. Missing split annotation/call preferences inherit their legacy shared values
+on import; other missing values use their defaults. The retired generated-source key is
+validated and ignored. New exports contain formatting preferences only.
 
-## Replacement batches
+The codec rejects duplicate/unknown keys, invalid Booleans, unsupported schemas, external
+entities and documents larger than 64 KiB. `ProfileFiles` writes a temporary sibling and uses
+atomic replacement when available. I/O failures leave saved project preferences untouched.
 
-`TextEdits.replace` stores text by exact range, so a later same-range edit wins. `gap` only
-accepts whitespace/semicolon gaps and preserves an existing semicolon. Application sorts by
-descending start offset and descending end offset. Partial overlaps fail with an explicit
-`IllegalStateException`; already applied replacements are not rolled back by that helper.
-A caller must never reuse a batch after committing changed source offsets.
+## Verification
 
-## Persistence and UI
-
-`BaselineSettings` is a project light service implementing `PersistentStateComponent`.
-Its mutable `FormatOptions` bean is stored in `.idea/baseline.xml`. `loadState` and `snapshot`
-copy every Boolean via `FormatOption`, avoiding shared mutable UI/run state. The single catalog
-also supplies checkbox labels, groups and tooltips. All defaults are true for backward behavior.
-
-`BaselineConfigurable` is registered as an Editor child project configurable. Creating the
-form reads saved state. Apply writes a copy; Reset discards unapplied changes. Restore defaults
-updates only the form. Export captures pending form values, and Import validates before
-updating controls. Dispose releases component references. UI lifecycle methods execute on
-the Swing event dispatch thread through the platform Settings dialog.
-
-## Portable profile transfer
-
-`ProfileCodec` serializes stable `FormatOption.property.name` keys to a version-one XML profile.
-It exports every Boolean deterministically and uses enabled defaults for missing keys. Import
-rejects unrelated roots, unsupported schema versions, duplicate/unknown entries, nested content
-and non-Boolean values. The parser prohibits document types, external entities and external
-schema/DTD access. Profiles are bounded to 64 KiB and contain no source text or project paths.
-The plugin version is informational; the schema version controls compatibility.
-
-`ProfileFiles` reads UTF-8 text and validates it before returning a fresh bean. Export writes a
-temporary sibling file, then atomically replaces the selected destination where supported.
-Filesystems without atomic moves use a regular replacement move. Temporary files are cleaned
-in either case, and I/O failures are reported by the UI. File I/O and XML conversion do not own
-project persistence.
-
-`BaselineConfigurable.createComponent` delegates to the current `createComponent2` form;
-`createComponent1` retains the original form for compatibility. The current form adds Export
-and Import actions. Export prompts for overwrite when necessary and reads current checkbox
-values. Import updates checkboxes after complete validation. Apply/OK is the only persistence
-boundary. Small, bounded file transfers run in the Settings dialog; no background listener,
-network transfer or automatic formatting is triggered by profile import.
-
-## Text sample resources
-
-`src/main/resources/JavaSample.txt` and `KotlinSample.txt` demonstrate approved layouts.
-They are plain resource text rather than production source files. Tests read their contents
-into fixtures named `JavaSample.java` and `KotlinSample.kt` to select the proper language parser.
-The release contains the text resources without compiled sample classes.
-
-## Current methods
-
-The final source contains one current implementation for each formatting operation.
-Superseded deprecated revisions have been removed, and current methods use canonical names.
-The registered extension and regression tests use the same current pipeline.
-
-## Tests
-
-The platform fixtures execute the registered Reformat Code pipeline, not a whitespace-only
-mock. They verify parsing, parameter preservation, structural barriers and repeated output.
-Settings tests verify the catalog against all Boolean bean fields, independent snapshots,
-XML serialization round trips, Apply/Reset/dispose, language/master switches and rule effects.
-Each independently disabled option is also exercised on Java/Kotlin for valid, stable output.
-Settings-test teardown restores defaults because platform fixtures may reuse a cached project.
-Portable-profile tests cover all-option round trips, invalid files, omitted defaults, oversized
-input, prohibited document types, export replacement and Import/Export Apply/Reset behavior.
-
-The suite does not simulate the desktop save or Git push UI. Native-save integration follows
-from using the same registered PostFormatProcessor pipeline; Git push integration is absent.
+PSI fixtures exercise native Reformat Code integration, parsing, safe ordering and repeated
+formatting. Settings tests cover pending values, persistence, profiles, independent padding and
+annotation controls, viewport sizing, mouse-wheel scrolling, every option's preview target,
+explanations and transient highlighting. They do not simulate Marketplace installation or the
+IDE's save/commit/push dialogs. The current source uses canonical methods without deprecated
+numbered implementations.

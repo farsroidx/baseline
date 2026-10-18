@@ -42,7 +42,7 @@ enum class FormatOption(
     ),
 
     SORT_FIELDS(
-        "Fields", "Sort fields by name length", "Sort safe field groups from longest to shortest name.",
+        "Fields", "Sort fields: longest first", "Sort safe field groups from longest to shortest declared type/name width.",
         FormatOptions::sortFields
     ),
 
@@ -57,38 +57,44 @@ enum class FormatOption(
     ),
 
     SORT_CONSTRUCTOR_ASSIGNMENTS(
-        "Constructors", "Sort independent constructor assignments",
-        "Order eligible assignments from shortest to longest target name.", FormatOptions::sortConstructorAssignments
+        "Constructors", "Sort assignments: shortest first",
+        "Order eligible assignments from shortest to longest declared type/name width.", FormatOptions::sortConstructorAssignments
     ),
 
     SORT_CONSTRUCTOR_LOCALS(
-        "Constructors", "Sort independent constructor locals",
-        "Order eligible local declarations from shortest to longest name.", FormatOptions::sortConstructorLocals
+        "Constructors", "Sort local variables: shortest first",
+        "Order eligible local declarations from shortest to longest declared type/name width.", FormatOptions::sortConstructorLocals
     ),
 
     GROUP_CONSTRUCTOR_VARIABLES(
-        "Constructors", "Group constructor variables by type",
+        "Constructors", "Group variables by type",
         "Group eligible assignment and declaration runs by type.", FormatOptions::groupConstructorVariables
     ),
 
+    SPACE_CONSTRUCTOR_ASSIGNMENTS(
+        "Constructors", "Blank lines between constructor assignments",
+        "When disabled, keep consecutive this-qualified assignments together regardless of type grouping.",
+        FormatOptions::spaceConstructorAssignments
+    ),
+
     NORMALIZE_MODIFIERS(
-        "Structure", "Normalize modifier order", "Use the language modifier order without crossing annotations.",
+        "Code layout", "Normalize modifier order", "Use the language modifier order without crossing annotations.",
         FormatOptions::normalizeModifiers
     ),
 
     CANONICAL_INDENTATION(
-        "Structure", "Override native indentation with four spaces",
+        "Code layout", "Use four-space indentation",
         "Override native indentation with four spaces and no tabs; custom continuation units remain four spaces.",
         FormatOptions::canonicalIndentation
     ),
 
     END_OF_LINE_BRACES(
-        "Structure", "Place opening braces at line ends", "Use end-of-line braces for methods, classes and blocks.",
+        "Code layout", "Opening brace on the same line", "Use end-of-line braces for methods, classes and blocks.",
         FormatOptions::endOfLineBraces
     ),
 
     EXPAND_SIMPLE_BLOCKS(
-        "Structure", "Expand simple blocks", "Disable compact single-line methods, classes and blocks.",
+        "Code layout", "Expand single-line blocks", "Disable compact single-line methods, classes and blocks.",
         FormatOptions::expandSimpleBlocks
     ),
 
@@ -108,168 +114,193 @@ enum class FormatOption(
     ),
 
     SPACE_STATEMENTS(
-        "Spacing", "Separate unrelated statements",
+        "Spacing", "Blank lines between unrelated statements",
         "Insert blank lines between unrelated statements and after local writes.", FormatOptions::spaceStatements
     ),
 
     SPACE_FILE_SECTIONS(
-        "Spacing", "Separate package, imports and declarations", "Insert blank lines between file header sections.",
+        "Spacing", "Blank lines after package and imports", "Insert blank lines between file header sections.",
         FormatOptions::spaceFileSections
     ),
 
     COMPACT_CLOSING_BRACES(
-        "Spacing", "Compact consecutive closing braces",
+        "Spacing", "No blank lines between closing braces",
         "Avoid blank lines between adjacent closing braces and inside empty blocks.",
         FormatOptions::compactClosingBraces
     ),
 
     COMPACT_BARE_EXITS(
-        "Spacing", "Compact bare return, continue and break", "Remove the final blank line after operand-free exits.",
+        "Spacing", "No blank line after return / break / continue", "Remove the final blank line after operand-free exits.",
         FormatOptions::compactBareExits
     ),
 
     REMOVE_TRAILING_WHITESPACE(
-        "Spacing", "Remove trailing file whitespace",
+        "Spacing", "No whitespace at end of file",
         "Remove whitespace, including the newline, at the end of the file.", FormatOptions::removeTrailingWhitespace
     ),
 
     WRAP_DECLARATIONS(
-        "Parameters and calls", "Wrap declaration parameters",
+        "Calls", "Wrap declaration parameters",
         "Wrap overlong declaration lists without changing parameter order.", FormatOptions::wrapDeclarations
     ),
 
     WRAP_CALLS(
-        "Parameters and calls", "Wrap call arguments", "Wrap overlong call lists without changing argument order.",
+        "Calls", "Wrap call arguments", "Wrap overlong call lists without changing argument order.",
         FormatOptions::wrapCalls
     ),
 
     PAD_SINGLE_ARGUMENTS(
-        "Parameters and calls", "Pad call argument lists",
-        "Use inner spaces for single-argument calls and qualified packed-call lists.", FormatOptions::padSingleArguments
+        "Calls", "Spaces in calls: one argument",
+        "Example: execute( request ) instead of execute(request).", FormatOptions::padSingleArguments
+    ),
+
+    PAD_MULTIPLE_ARGUMENTS(
+        "Calls", "Spaces in calls: multiple arguments",
+        "Example: execute( first, second ) instead of execute(first, second).", FormatOptions::padMultipleArguments
+    ),
+
+    PAD_ANNOTATION_ARRAYS(
+        "Annotations", "Spaces inside annotation array braces",
+        "Example: @Mapping({ \"/path\" }) instead of @Mapping({\"/path\"}).", FormatOptions::padAnnotationArrays
     ),
 
     COLLAPSE_SHORT_LISTS(
-        "Parameters and calls", "Collapse short parameter and argument lists",
+        "Calls", "Keep short argument lists on one line",
         "Flatten safe lists that fit the editor right margin.", FormatOptions::collapseShortLists
     ),
 
     PACK_CALL_ARGUMENTS(
-        "Parameters and calls", "Pack wrapped call arguments",
+        "Calls", "Fit several arguments on each line",
         "Place as many safe arguments as fit on each continuation row.", FormatOptions::packCallArguments
     ),
 
     WRAP_ANNOTATED_PARAMETERS(
-        "Parameters and calls", "Put annotated parameters on separate lines",
+        "Calls", "Wrap lists with annotated parameters",
         "Force multiline declaration lists containing annotated parameters.", FormatOptions::wrapAnnotatedParameters
     ),
 
     FORMAT_CHAINS(
-        "Parameters and calls", "Format fluent call chains",
+        "Calls", "Each chained call on a new line",
         "Place successive method-call links on continuation lines.", FormatOptions::formatChains
     ),
 
     KEEP_SIMPLE_RECEIVERS(
-        "Parameters and calls", "Keep simple receivers with calls",
+        "Calls", "Keep short receiver and call together",
         "Avoid splitting a simple receiver from its method unnecessarily.", FormatOptions::keepSimpleReceivers
     ),
 
     FORMAT_EXPRESSION_BODIES(
-        "Parameters and calls", "Format Kotlin expression bodies",
+        "Calls", "Wrap Kotlin expression bodies",
         "Try moving a short expression below the equals sign before wrapping arguments.",
         FormatOptions::formatExpressionBodies
     ),
 
     FORMAT_CONDITIONS(
-        "Conditions and branches", "Wrap logical conditions",
+        "Conditions", "Wrap long conditions",
         "Wrap conditions at the right margin with operators at line ends.", FormatOptions::formatConditions
     ),
 
     FORMAT_LOGICAL_ASSIGNMENTS(
-        "Conditions and branches", "Format logical initializers",
+        "Conditions", "Wrap long boolean assignments",
         "Keep the first boolean operand beside equals when it fits.", FormatOptions::formatLogicalAssignments
     ),
 
     ALIGN_ASSIGNMENTS(
-        "Conditions and branches", "Align multiline assignments", "Use native alignment for multiline assignments.",
+        "Conditions", "Align multiline assignments", "Use native alignment for multiline assignments.",
         FormatOptions::alignAssignments
     ),
 
     FORMAT_TERNARIES(
-        "Conditions and branches", "Align and wrap Java ternaries",
+        "Conditions", "Align and wrap Java ternaries",
         "Use native multiline ternary alignment and wrapping.", FormatOptions::formatTernaries
     ),
 
     FORMAT_CONTROL_HEADERS(
-        "Conditions and branches", "Format multiline control headers",
+        "Conditions", "Wrap long if / for / while headers",
         "Put multiline for, while, switch and when headers between separate parentheses.",
         FormatOptions::formatControlHeaders
     ),
 
     PAD_NESTED_HEADERS(
-        "Conditions and branches", "Pad nested control parentheses",
+        "Conditions", "Spaces around nested header parentheses",
         "Add inner spaces when a control header starts with a nested parenthesis.", FormatOptions::padNestedHeaders
     ),
 
     SIMPLIFY_DATA_BRANCHES(
-        "Conditions and branches", "Simplify Kotlin data branches",
+        "Conditions", "Remove braces from simple Kotlin branches",
         "Remove safe braces around a single Kotlin data expression.", FormatOptions::simplifyDataBranches
     ),
 
     BRACE_MULTILINE_BRANCHES(
-        "Conditions and branches", "Brace multiline call branches",
+        "Conditions", "Braces around multiline branches",
         "Add braces around an unbraced multiline call in a conditional branch.", FormatOptions::braceMultilineBranches
     ),
 
     SPACE_CASES(
-        "Conditions and branches", "Blank lines between cases", "Separate Kotlin when entries and Java switch labels.",
+        "Conditions", "Blank lines between cases", "Separate Kotlin when entries and Java switch labels.",
         FormatOptions::spaceCases
     ),
 
     ALIGN_CASES(
-        "Conditions and branches", "Align case separators", "Align Kotlin arrows and Java switch label colons.",
+        "Conditions", "Align case arrows and colons", "Align Kotlin arrows and Java switch label colons.",
         FormatOptions::alignCases
     ),
 
     FORMAT_FALLBACKS(
-        "Conditions and branches", "Format Kotlin Elvis fallbacks",
+        "Conditions", "Wrap Kotlin ?: expressions",
         "Keep block fallbacks beside the closing brace; wrap other multiline fallbacks.", FormatOptions::formatFallbacks
     ),
 
     FORMAT_ANNOTATIONS(
-        "Annotations and lambdas", "Place annotations above declarations",
-        "Separate declaration annotations from their declarations.", FormatOptions::formatAnnotations
+        "Annotations", "Method annotations on separate lines",
+        "Place method and function annotations above the declaration.", FormatOptions::formatAnnotations
+    ),
+
+    FORMAT_PARAMETER_ANNOTATIONS(
+        "Annotations", "Parameter annotations on separate lines",
+        "Turn off for @RequestBody Request request on one line.", FormatOptions::formatParameterAnnotations
+    ),
+
+    FORMAT_FIELD_ANNOTATIONS(
+        "Annotations", "Field annotations on separate lines",
+        "Place field and property annotations above the declaration.", FormatOptions::formatFieldAnnotations
+    ),
+
+    FORMAT_CLASS_ANNOTATIONS(
+        "Annotations", "Class annotations on separate lines",
+        "Place class annotations above the declaration.", FormatOptions::formatClassAnnotations
     ),
 
     SPACE_ANNOTATED_FIELDS(
-        "Annotations and lambdas", "Separate annotated fields",
+        "Annotations", "Blank lines around annotated fields",
         "Insert blank lines around fields carrying annotations.", FormatOptions::spaceAnnotatedFields
     ),
 
     SPACE_LAMBDAS(
-        "Annotations and lambdas", "Space multiline Kotlin lambdas",
+        "Annotations", "Blank lines inside Kotlin lambdas",
         "Include blank lines inside multiline lambda bodies.", FormatOptions::spaceLambdas
     ),
 
     KEEP_ASSIGNMENT_RECEIVER(
-        "Parameters and calls", "Keep a chain receiver beside equals",
+        "Calls", "Keep chain receiver after =",
         "Attach the first receiver to the assignment and normalize its continuation indentation.",
         FormatOptions::keepAssignmentReceiver
     ),
 
     NORMALIZE_LINE_BREAKS(
-        "Structure", "Recompute native line breaks",
+        "Code layout", "Recalculate existing line breaks",
         "Allow native formatting to recompute existing line breaks before custom wrapping.",
         FormatOptions::normalizeLineBreaks
     ),
 
     SEPARATE_STATEMENTS(
-        "Structure", "One statement per native line", "Require one statement per line during native formatting.",
+        "Code layout", "One statement per line", "Require one statement per line during native formatting.",
         FormatOptions::separateStatements
     ),
 
     GROUP_FIELDS_BY_PREFIX(
         "Fields",
-        "Group fields by shared prefix",
+        "Group fields by name prefix",
         "Group matching snake_case or camelCase prefixes across field types inside each visibility/static section.",
         FormatOptions::groupFieldsByPrefix
     );

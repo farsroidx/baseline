@@ -45,6 +45,28 @@ class ProfileCodecTest : TestCase() {
 
     }
 
+    /** Older shared switches initialize their newly independent options without changing exported explicit values. */
+    fun testOlderSharedPreferencesInitializeIndependentOptions() {
+
+        val options = ProfileCodec().decode( profile(
+            "<option name=\"padSingleArguments\" value=\"false\"/>" +
+                "<option name=\"formatAnnotations\" value=\"false\"/>"
+        ) )
+
+        assertFalse( options.padMultipleArguments )
+
+        assertFalse( options.formatParameterAnnotations )
+
+        assertFalse( options.formatFieldAnnotations )
+
+        assertFalse( options.formatClassAnnotations )
+
+        val restored = ProfileCodec().decode( ProfileCodec().encode( options ) )
+
+        assertFalse( restored.formatParameterAnnotations )
+
+    }
+
     /** Unsupported schema versions and unrelated project XML must be rejected. */
     fun testRejectsUnsupportedProfiles() {
 

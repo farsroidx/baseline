@@ -8,10 +8,14 @@ package ir.farsroidx.baseline.config
  */
 class FormatOptions {
 
-    /** Order eligible assignments from shortest to longest target name. */
+    /** Order eligible assignments from shortest to longest declared type/name width. */
     var sortConstructorAssignments: Boolean = true
     /** Group eligible assignment and declaration runs by type. */
     var groupConstructorVariables: Boolean  = true
+
+    /** When disabled, keep consecutive this-qualified constructor assignments together across type groups. */
+    var spaceConstructorAssignments: Boolean = true
+
     /** Remove whitespace, including the newline, at the end of the file. */
     var removeTrailingWhitespace: Boolean   = true
     /** Keep the first boolean operand beside equals when it fits. */
@@ -30,7 +34,7 @@ class FormatOptions {
     var braceMultilineBranches: Boolean     = true
     /** Attach the first receiver to the assignment and normalize its continuation indentation. */
     var keepAssignmentReceiver: Boolean     = true
-    /** Order eligible local declarations from shortest to longest name. */
+    /** Order eligible local declarations from shortest to longest declared type/name width. */
     var sortConstructorLocals: Boolean      = true
     /** Place static-like fields before instance fields within safe runs. */
     var separateStaticFields: Boolean       = true
@@ -52,8 +56,15 @@ class FormatOptions {
     var normalizeModifiers: Boolean         = true
     /** Disable compact single-line methods, classes and blocks. */
     var expandSimpleBlocks: Boolean         = true
-    /** Use inner spaces for single-argument calls and qualified packed-call lists. */
+    /** Use inner spaces for single-argument calls. */
     var padSingleArguments: Boolean         = true
+
+    /** Use inner spaces in eligible packed calls with multiple arguments. */
+    var padMultipleArguments: Boolean = true
+
+    /** Use inner spaces in Java annotation-array braces and Kotlin annotation collection brackets. */
+    var padAnnotationArrays: Boolean = true
+
     /** Flatten safe lists that fit the editor right margin. */
     var collapseShortLists: Boolean         = true
     /** Require one statement per line during native formatting. */
@@ -64,8 +75,18 @@ class FormatOptions {
     var spaceFileSections: Boolean          = true
     /** Place as many safe arguments as fit on each continuation row. */
     var packCallArguments: Boolean          = true
-    /** Separate declaration annotations from their declarations. */
+    /** Place method and function annotations above the declaration. */
     var formatAnnotations: Boolean          = true
+
+    /** Place parameter annotations on separate lines instead of beside the parameter type/name. */
+    var formatParameterAnnotations: Boolean = true
+
+    /** Place field and property annotations above the declaration. */
+    var formatFieldAnnotations: Boolean = true
+
+    /** Place class annotations above the declaration. */
+    var formatClassAnnotations: Boolean = true
+
     /** Separate enabled field groups with one blank line. */
     var spaceFieldGroups: Boolean           = true
     /** Align initializers within consecutive field groups. */
@@ -98,7 +119,7 @@ class FormatOptions {
     var spaceLambdas: Boolean               = true
     /** Apply Baseline to whole Java files. */
     var javaEnabled: Boolean                = true
-    /** Sort safe field groups from longest to shortest name. */
+    /** Sort safe field groups from longest to shortest declared type/name width. */
     var sortFields: Boolean                 = true
     /** Separate Kotlin when entries and Java switch labels. */
     var spaceCases: Boolean                 = true
@@ -109,6 +130,7 @@ class FormatOptions {
     /** Run custom passes after the built-in formatter. */
     var enabled: Boolean                    = true
 
+    /** Group shared snake_case/camelCase field prefixes within visibility/static boundaries; disabled by default. */
     var groupFieldsByPrefix: Boolean = false
 
     /** Returns an independent copy; modifying it never changes the stored project state. */

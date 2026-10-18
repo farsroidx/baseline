@@ -1,6 +1,8 @@
 package ir.farsroidx.baseline.integration
 
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.Key
+import ir.farsroidx.baseline.config.FormatOptions
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.CodeStyleSettings
@@ -82,7 +84,7 @@ class FormatProcessor : PostFormatProcessor {
      */
     override fun processText(source: PsiFile, rangeToReformat: TextRange, settings: CodeStyleSettings): TextRange {
 
-        val options = source.project
+        val options = source.getUserData( PREVIEW_OPTIONS ) ?: source.project
             .getService( BaselineSettings::class.java )
             .snapshot()
 
@@ -123,6 +125,8 @@ class FormatProcessor : PostFormatProcessor {
     }
 
     companion object {
+
+        internal val PREVIEW_OPTIONS = Key.create<FormatOptions>( "baseline.preview.options" )
 
         private val active = ThreadLocal.withInitial { false }
     }
