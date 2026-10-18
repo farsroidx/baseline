@@ -1,183 +1,156 @@
-# Baseline preferences
+# Settings
 
-Open **Settings / Editor / Baseline**. Preferences belong to the current project and are
-saved in `.idea/baseline.xml`. The 50 original options default to **enabled**, preserving the approved
-phase-one formatter behavior. Shared-prefix field grouping defaults to **disabled**.
-Missing preferences retain their individual defaults when loading older state files.
+Open **Settings / Editor / Baseline**. The 57 preferences belong to the current project and are
+stored in `.idea/baseline.xml`. All default to on except **Group fields by name prefix**.
 
-Changes take effect after **Apply** or **OK**, on the next whole-file Reformat operation.
-**Restore defaults** changes the displayed form only; Apply/OK is still required to save it.
-Cancel discards unapplied changes. The formatter captures one independent snapshot per run.
+Choose a category and change a checkbox. The live preview shows Java or Kotlin, scrolls to the
+related example and briefly highlights it. Use **Original sample** to compare the input.
+If the output does not change, the explanation says so and the related example is still shown.
+Some rules require long input or depend on other enabled rules.
 
-Disabling Baseline or a language leaves that request to IntelliJ's native formatter.
-Disabling an individual layout rule removes that custom override; it does not disable the
-native formatter. Native code style can therefore produce similar whitespace. Disabling
-opening/closing blank lines explicitly removes those optional blank lines after other passes.
+**Apply/OK** saves the form. **Reset** reloads saved preferences. **Restore defaults** changes the
+form only. Cancel discards unapplied edits. Formatting uses a separate snapshot of saved values.
+Disabling a rule generally leaves native IntelliJ formatting in effect, which may look similar.
+
+## Common recipes
+
+| Desired result | Setting |
+| --- | --- |
+| Consecutive constructor assignments, preserving the gap after `super(...)` | Turn off Constructors / Blank lines between constructor assignments. Surrounding gaps still follow statement-spacing settings. |
+| `execute(getHeaders(request))` | Turn off Calls / Spaces in calls: one argument. |
+| `execute(first, second)` without inner padding | Turn off Calls / Spaces in calls: multiple arguments. |
+| `@GetMapping({"/path"})` | Turn off Annotations / Spaces inside annotation array braces. |
+| `@RequestBody Request request` on one line | Turn off Annotations / Parameter annotations on separate lines. Also turn off Calls / Wrap lists with annotated parameters if annotations should not force multiline parameter lists. |
+| Keep annotations above methods while parameter annotations stay inline | Keep Method annotations on separate lines on; turn Parameter annotations on separate lines off. |
+| Keep field declaration order | Turn off field sorting and all field grouping options, including static separation and prefix grouping. |
+| Keep constructor statement order | Turn off both constructor sorting options and Group variables by type. Signatures are always preserved. |
+
+Field cascade width includes the declared type and variable name. Safe constructor runs use
+ascending width; fields use descending width. Business calls, comments and unsafe writes are
+barriers. No setting changes parameter/argument order or rearranges ordinary method statements.
 
 ## Export and import
 
-1. Open **Settings / Editor / Baseline** and choose the desired checkbox values.
-2. Click **Export settings...** and save `baseline-settings.xml`.
-3. Send that file to your colleague through your normal sharing channel.
-4. Your colleague opens the same page and clicks **Import settings...**.
-5. Select the XML file, review the imported checkboxes, then click **Apply** or **OK**.
+1. Choose your preferences and click **Export settings...**.
+2. Share the resulting `baseline-settings.xml` file.
+3. Import it with **Import settings...**, review the preview, then click Apply/OK.
 
-Export includes the currently displayed values even if they have not been applied. Import
-changes the form only: Reset discards it, and Cancel leaves saved project preferences unchanged.
-Exporting does not save or alter the current project's preferences. Existing export destinations
-require overwrite confirmation. File cancellation leaves the form and saved preferences unchanged.
+Export includes pending edits. Import updates the form only and validates the complete profile
+before changing controls. Profiles include all 57 Boolean preferences, not source code, project
+paths, IntelliJ code-style schemes or language right margins.
 
-All 51 options are exported with stable property names. Profiles contain no project path or
-source code. They do not export IntelliJ's code-style scheme, language right margins or save/Git
-preferences. Set matching Java/Kotlin right margins separately for matching wrapped output.
+Older schema-version-1 profiles are supported. Missing split call/annotation values inherit the
+old shared settings; other missing keys use their defaults. The retired `showGeneratedSources`
+key is accepted and ignored. New exports omit it. Unsupported schemas, duplicate/unknown keys,
+invalid Boolean values, external entities and files over 64 KiB are rejected.
 
-The retired `showGeneratedSources` entry is validated and ignored when importing older profiles.
-New exports contain formatting preferences only.
-
-Malformed XML, unsupported schema versions, other unknown or duplicate options, invalid Boolean values
-and files larger than 64 KiB are rejected before any checkbox is changed. Missing options in a
-valid version-one profile retain enabled defaults. Only lower-case `true` and `false` are accepted.
-Document types and external entities are prohibited.
-
-A minimal valid partial profile looks like this; normal exports include every option:
+Example of a partial profile; normal exports contain every option:
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<baseline-settings formatVersion="1" pluginVersion="1.0.1">
-    <option name="enabled" value="true"/>
-    <option name="sortFields" value="false"/>
+<baseline-settings formatVersion="1" pluginVersion="1.0.2">
+    <option name="spaceConstructorAssignments" value="false"/>
+    <option name="padSingleArguments" value="false"/>
+    <option name="padAnnotationArrays" value="false"/>
 </baseline-settings>
 ```
 
-This portable format is separate from `.idea/baseline.xml`; use the Export button instead of
-copying IntelliJ's internal project-state XML.
+## Option reference
 
-## Boolean options
+Labels below match the Settings page. Each checkbox also shows its explanation in the preview.
 
-Every setting below is independent in storage. Related enabled passes can still affect the
-same expression: for example, fluent chains remain multiline when call wrapping is disabled,
-and case/lambda whitespace interacts with block-boundary whitespace.
+### Annotations
 
-### General
+| Option | Profile key |
+| --- | --- |
+| Spaces inside annotation array braces | `padAnnotationArrays` |
+| Method annotations on separate lines | `formatAnnotations` |
+| Parameter annotations on separate lines | `formatParameterAnnotations` |
+| Field annotations on separate lines | `formatFieldAnnotations` |
+| Class annotations on separate lines | `formatClassAnnotations` |
+| Blank lines around annotated fields | `spaceAnnotatedFields` |
+| Blank lines inside Kotlin lambdas | `spaceLambdas` |
 
-| Option | Behavior when enabled | State property |
-| --- | --- | --- |
-| Enable Baseline | Run custom passes after the built-in formatter. | `enabled` |
-| Format Java files | Apply Baseline to whole Java files. | `javaEnabled` |
-| Format Kotlin files | Apply Baseline to whole Kotlin files. | `kotlinEnabled` |
+### Calls
 
-### Fields
+| Option | Profile key |
+| --- | --- |
+| Wrap declaration parameters | `wrapDeclarations` |
+| Wrap call arguments | `wrapCalls` |
+| Spaces in calls: one argument | `padSingleArguments` |
+| Spaces in calls: multiple arguments | `padMultipleArguments` |
+| Keep short argument lists on one line | `collapseShortLists` |
+| Fit several arguments on each line | `packCallArguments` |
+| Wrap lists with annotated parameters | `wrapAnnotatedParameters` |
+| Each chained call on a new line | `formatChains` |
+| Keep short receiver and call together | `keepSimpleReceivers` |
+| Wrap Kotlin expression bodies | `formatExpressionBodies` |
+| Keep chain receiver after = | `keepAssignmentReceiver` |
 
-| Option | Behavior when enabled | State property |
-| --- | --- | --- |
-| Separate static and instance fields | Place static-like fields before instance fields within safe runs. | `separateStaticFields` |
-| Group fields by visibility | Order public, protected, internal/package and private visibility groups. | `groupFieldsByVisibility` |
-| Group fields by type | Keep matching types together within the enabled outer groups. | `groupFieldsByType` |
-| Sort fields by name length | Sort safe field groups from longest to shortest declared type/name width. | `sortFields` |
-| Group fields by shared prefix | Group matching snake_case or camelCase prefixes inside each visibility/static section; disabled by default. | `groupFieldsByPrefix` |
-| Blank lines between field groups | Separate enabled field groups with one blank line. | `spaceFieldGroups` |
-| Align field equals signs | Align initializers within consecutive field groups. | `alignFieldEquals` |
+### Code layout
+
+| Option | Profile key |
+| --- | --- |
+| Normalize modifier order | `normalizeModifiers` |
+| Use four-space indentation | `canonicalIndentation` |
+| Opening brace on the same line | `endOfLineBraces` |
+| Expand single-line blocks | `expandSimpleBlocks` |
+| Recalculate existing line breaks | `normalizeLineBreaks` |
+| One statement per line | `separateStatements` |
+
+### Conditions
+
+| Option | Profile key |
+| --- | --- |
+| Wrap long conditions | `formatConditions` |
+| Wrap long boolean assignments | `formatLogicalAssignments` |
+| Align multiline assignments | `alignAssignments` |
+| Align and wrap Java ternaries | `formatTernaries` |
+| Wrap long if / for / while headers | `formatControlHeaders` |
+| Spaces around nested header parentheses | `padNestedHeaders` |
+| Remove braces from simple Kotlin branches | `simplifyDataBranches` |
+| Braces around multiline branches | `braceMultilineBranches` |
+| Blank lines between cases | `spaceCases` |
+| Align case arrows and colons | `alignCases` |
+| Wrap Kotlin ?: expressions | `formatFallbacks` |
 
 ### Constructors
 
-| Option | Behavior when enabled | State property |
-| --- | --- | --- |
-| Sort independent constructor assignments | Order eligible assignments from shortest to longest declared type/name width. | `sortConstructorAssignments` |
-| Sort independent constructor locals | Order eligible local declarations from shortest to longest declared type/name width. | `sortConstructorLocals` |
-| Group constructor variables by type | Group eligible assignment and declaration runs by type. | `groupConstructorVariables` |
+| Option | Profile key |
+| --- | --- |
+| Sort assignments: shortest first | `sortConstructorAssignments` |
+| Sort local variables: shortest first | `sortConstructorLocals` |
+| Group variables by type | `groupConstructorVariables` |
+| Blank lines between constructor assignments | `spaceConstructorAssignments` |
 
-### Structure
+### Fields
 
-| Option | Behavior when enabled | State property |
-| --- | --- | --- |
-| Normalize modifier order | Use the language modifier order without crossing annotations. | `normalizeModifiers` |
-| Override native indentation with four spaces | Override native indentation with four spaces and no tabs; custom continuation units remain four spaces. | `canonicalIndentation` |
-| Place opening braces at line ends | Use end-of-line braces for methods, classes and blocks. | `endOfLineBraces` |
-| Expand simple blocks | Disable compact single-line methods, classes and blocks. | `expandSimpleBlocks` |
-| Recompute native line breaks | Allow native formatting to recompute existing line breaks before custom wrapping. | `normalizeLineBreaks` |
-| One statement per native line | Require one statement per line during native formatting. | `separateStatements` |
+| Option | Profile key |
+| --- | --- |
+| Separate static and instance fields | `separateStaticFields` |
+| Group fields by visibility | `groupFieldsByVisibility` |
+| Group fields by type | `groupFieldsByType` |
+| Sort fields: longest first | `sortFields` |
+| Blank lines between field groups | `spaceFieldGroups` |
+| Align field equals signs | `alignFieldEquals` |
+| Group fields by name prefix | `groupFieldsByPrefix` |
+
+### General
+
+| Option | Profile key |
+| --- | --- |
+| Enable Baseline | `enabled` |
+| Format Java files | `javaEnabled` |
+| Format Kotlin files | `kotlinEnabled` |
 
 ### Spacing
 
-| Option | Behavior when enabled | State property |
-| --- | --- | --- |
-| Blank line after opening braces | Include a blank line at the beginning of nonempty blocks. | `blankAfterOpeningBrace` |
-| Blank line before closing braces | Include a blank line at the end of nonempty blocks. | `blankBeforeClosingBrace` |
-| Blank lines between members | Separate class members and top-level declarations. | `spaceMembers` |
-| Separate unrelated statements | Insert blank lines between unrelated statements and after local writes. | `spaceStatements` |
-| Separate package, imports and declarations | Insert blank lines between file header sections. | `spaceFileSections` |
-| Compact consecutive closing braces | Avoid blank lines between adjacent closing braces and inside empty blocks. | `compactClosingBraces` |
-| Compact bare return, continue and break | Remove the final blank line after operand-free exits. | `compactBareExits` |
-| Remove trailing file whitespace | Remove whitespace, including the newline, at the end of the file. | `removeTrailingWhitespace` |
-
-### Parameters and calls
-
-| Option | Behavior when enabled | State property |
-| --- | --- | --- |
-| Wrap declaration parameters | Wrap overlong declaration lists without changing parameter order. | `wrapDeclarations` |
-| Wrap call arguments | Wrap overlong call lists without changing argument order. | `wrapCalls` |
-| Pad call argument lists | Use inner spaces for single-argument calls and qualified packed-call lists. | `padSingleArguments` |
-| Collapse short parameter and argument lists | Flatten safe lists that fit the editor right margin. | `collapseShortLists` |
-| Pack wrapped call arguments | Place as many safe arguments as fit on each continuation row. | `packCallArguments` |
-| Put annotated parameters on separate lines | Force multiline declaration lists containing annotated parameters. | `wrapAnnotatedParameters` |
-| Format fluent call chains | Place successive method-call links on continuation lines. | `formatChains` |
-| Keep simple receivers with calls | Avoid splitting a simple receiver from its method unnecessarily. | `keepSimpleReceivers` |
-| Format Kotlin expression bodies | Try moving a short expression below the equals sign before wrapping arguments. | `formatExpressionBodies` |
-| Keep a chain receiver beside equals | Attach the first receiver to the assignment and normalize its continuation indentation. | `keepAssignmentReceiver` |
-
-### Conditions and branches
-
-| Option | Behavior when enabled | State property |
-| --- | --- | --- |
-| Wrap logical conditions | Wrap conditions at the right margin with operators at line ends. | `formatConditions` |
-| Format logical initializers | Keep the first boolean operand beside equals when it fits. | `formatLogicalAssignments` |
-| Align multiline assignments | Use native alignment for multiline assignments. | `alignAssignments` |
-| Align and wrap Java ternaries | Use native multiline ternary alignment and wrapping. | `formatTernaries` |
-| Format multiline control headers | Put multiline for, while, switch and when headers between separate parentheses. | `formatControlHeaders` |
-| Pad nested control parentheses | Add inner spaces when a control header starts with a nested parenthesis. | `padNestedHeaders` |
-| Simplify Kotlin data branches | Remove safe braces around a single Kotlin data expression. | `simplifyDataBranches` |
-| Brace multiline call branches | Add braces around an unbraced multiline call in a conditional branch. | `braceMultilineBranches` |
-| Blank lines between cases | Separate Kotlin when entries and Java switch labels. | `spaceCases` |
-| Align case separators | Align Kotlin arrows and Java switch label colons. | `alignCases` |
-| Format Kotlin Elvis fallbacks | Keep block fallbacks beside the closing brace; wrap other multiline fallbacks. | `formatFallbacks` |
-
-### Annotations and lambdas
-
-| Option | Behavior when enabled | State property |
-| --- | --- | --- |
-| Place annotations above declarations | Separate declaration annotations from their declarations. | `formatAnnotations` |
-| Separate annotated fields | Insert blank lines around fields carrying annotations. | `spaceAnnotatedFields` |
-| Space multiline Kotlin lambdas | Include blank lines inside multiline lambda bodies. | `spaceLambdas` |
-
-## Rules that remain mandatory
-
-These invariants are safety contracts, not style switches:
-
-- Method/constructor declaration order and parameter/argument order are preserved.
-- Reordering only crosses eligible independent declarations or constructor statements.
-  Comments, business calls, repeated writes and unsafe initializers stop a run.
-- Partial selections retain native formatting; Baseline does not expand a selected range.
-- Files with syntax errors or an enabled formatter-off region skip custom whole-file passes.
-- Comment/string contents and Kotlin trailing commas are preserved by conservative rendering.
-- Native Rearrange is disabled inside Baseline's own native-formatting cycle.
-- Custom continuation indentation uses a four-space unit. The native indentation option
-  controls the native formatter override, not a numeric custom-indent preference.
-
-## Common combinations
-
-To keep declaration order, disable **Sort fields by name length**, **Group fields by type**,
-**Group fields by visibility**, and **Separate static and instance fields**. Leaving a grouping
-option enabled permits grouping rearrangement even when length sorting is disabled.
-
-To preserve constructor statement order, disable both constructor sorting options and
-**Group constructor variables by type**. Eligible-run safety checks still apply when sorting
-is enabled. Constructor signatures are never sorted.
-
-To keep only one newline at method boundaries, disable the opening and closing blank-line
-options. **Compact bare return, continue and break** removes a trailing blank line after those
-exits even if general closing blank lines are enabled. **Compact consecutive closing braces**
-also takes precedence for brace-only boundaries and empty blocks.
-
-To hand call layout entirely back to native code style, disable custom call wrapping, argument
-packing, list collapsing, padding, chain layout and receiver rules. A single indivisible token
-may exceed the right margin; Baseline does not split identifiers or literals.
+| Option | Profile key |
+| --- | --- |
+| Blank line after opening braces | `blankAfterOpeningBrace` |
+| Blank line before closing braces | `blankBeforeClosingBrace` |
+| Blank lines between members | `spaceMembers` |
+| Blank lines between unrelated statements | `spaceStatements` |
+| Blank lines after package and imports | `spaceFileSections` |
+| No blank lines between closing braces | `compactClosingBraces` |
+| No blank line after return / break / continue | `compactBareExits` |
+| No whitespace at end of file | `removeTrailingWhitespace` |

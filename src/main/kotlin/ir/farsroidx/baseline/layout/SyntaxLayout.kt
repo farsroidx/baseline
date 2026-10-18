@@ -138,7 +138,7 @@ internal class SyntaxLayout {
      * @author Mohammad ali Riazati
      * @since 1.0.0
      */
-    fun annotations(source: PsiFile): TextEdits {
+    fun annotations(source: PsiFile, options: FormatOptions): TextEdits {
 
         val edits = TextEdits()
 
@@ -154,6 +154,18 @@ internal class SyntaxLayout {
 
             val owner = annotation.parent.parent
 
+            val separate = when (owner) {
+
+                is PsiParameter, is KtParameter -> options.formatParameterAnnotations
+
+                is PsiField, is KtProperty -> options.formatFieldAnnotations
+
+                is PsiClass, is KtClassOrObject -> options.formatClassAnnotations
+
+                else -> options.formatAnnotations
+
+            }
+
             var next = PsiTreeUtil.nextLeaf( annotation )
 
             while (next is PsiWhiteSpace) {
@@ -164,7 +176,7 @@ internal class SyntaxLayout {
 
             if (next != null && owner.textRange.contains( next.textRange )) {
 
-                edits.gap( annotation, next, NEW_LINE + indentation( owner ) )
+                edits.gap( annotation, next, if (separate) NEW_LINE + indentation( owner ) else " " )
 
             }
         }

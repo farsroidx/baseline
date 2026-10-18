@@ -613,7 +613,9 @@ internal class CallLayout {
 
             val base = indentation( list )
 
-            val padding = if (options.padSingleArguments && (qualified || expressionBody || flat.size == 1)) " " else ""
+            val padded = if (flat.size == 1) options.padSingleArguments else options.padMultipleArguments && (qualified || expressionBody)
+
+            val padding = if (padded) " " else ""
 
             val inline = "(" + padding + flat.joinToString( ", " ) + padding + ")"
 

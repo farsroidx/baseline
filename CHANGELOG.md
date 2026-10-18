@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.2 - 2026-10-18
+
+- Simplify Settings categories and fix independent mouse-wheel scrolling and preview sizing.
+- Add live Java/Kotlin previews, original samples, option explanations and temporary code highlights.
+- Focus the relevant example for every option, including changes with no visible layout difference.
+- Add a constructor-assignment spacing switch that preserves surrounding statement spacing.
+- Separate single/multiple-argument call padding from annotation-array padding.
+- Separate annotation placement for methods, parameters, fields and classes.
+- Export all 57 preferences; initialize split preferences from legacy shared values on older profile imports.
+
 ## 1.0.1 - 2026-10-13
 
 ### Fixed

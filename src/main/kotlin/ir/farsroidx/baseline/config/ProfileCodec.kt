@@ -11,8 +11,9 @@ import org.xml.sax.SAXParseException
 /**
  * Encodes portable Boolean preferences independently of IntelliJ's project-state XML.
  *
- * Schema version 1 uses stable state-property names. Missing preferences retain enabled
- * defaults; unknown names, duplicate entries and non-Boolean values are rejected. Parsing
+ * Schema version 1 uses stable state-property names. Missing split preferences inherit legacy
+ * shared values; other missing preferences use their defaults. Unknown names, duplicate entries
+ * and non-Boolean values are rejected. Parsing
  * prohibits document types and external resources. No project or UI state is modified.
  */
 internal class ProfileCodec {
@@ -178,6 +179,26 @@ internal class ProfileCodec {
 
         }
 
+        if (FormatOptions::padMultipleArguments.name !in imported) {
+
+            options.padMultipleArguments = options.padSingleArguments
+
+        }
+
+        for (property in listOf(
+            FormatOptions::formatParameterAnnotations,
+            FormatOptions::formatFieldAnnotations,
+            FormatOptions::formatClassAnnotations
+        )) {
+
+            if (property.name !in imported) {
+
+                property.set( options, options.formatAnnotations )
+
+            }
+
+        }
+
         return options
 
     }
@@ -193,7 +214,7 @@ internal class ProfileCodec {
         private const val DISALLOW_DOCTYPE            = "http://apache.org/xml/features/disallow-doctype-decl"
         private const val RETIRED_GENERATED_OPTION = "showGeneratedSources"
 
-        private const val RELEASE_VERSION             = "1.0.1"
+        private const val RELEASE_VERSION             = "1.0.2"
         private const val FORMAT_VERSION              = "formatVersion"
         private const val SCHEMA_VERSION              = "1"
         private const val PLUGIN_VERSION              = "pluginVersion"

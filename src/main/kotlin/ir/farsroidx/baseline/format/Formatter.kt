@@ -261,7 +261,7 @@ internal class Formatter {
 
         }
 
-        if (options.formatAnnotations) apply(document, manager, syntax.annotations( source ))
+        apply(document, manager, syntax.annotations( source, options ))
 
         apply(document, manager, syntax.branches( source, options ))
 
@@ -315,6 +315,8 @@ internal class Formatter {
         if (options.formatLogicalAssignments) apply(document, manager, logical.expressions( source, rightMargin ))
 
         apply(document, manager, PreferenceLayout().boundaries( source, options ))
+
+        apply(document, manager, ArgumentSpacing().spacing( source, options ))
 
         val end = document.text.trimEnd()
 

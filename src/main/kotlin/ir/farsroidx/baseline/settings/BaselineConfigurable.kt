@@ -1,14 +1,18 @@
 package ir.farsroidx.baseline.settings
 
 import com.intellij.openapi.options.SearchableConfigurable
+import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
+import com.intellij.ui.components.JBScrollPane
 import ir.farsroidx.baseline.config.BaselineSettings
 import ir.farsroidx.baseline.config.FormatOption
 import ir.farsroidx.baseline.config.FormatOptions
 import ir.farsroidx.baseline.config.ProfileCodec
 import ir.farsroidx.baseline.config.ProfileFiles
 import java.awt.BorderLayout
+import java.awt.CardLayout
+import java.awt.Dimension
 import java.io.IOException
 import java.nio.file.Files
 import javax.swing.BorderFactory
@@ -20,6 +24,8 @@ import javax.swing.JFileChooser
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JScrollPane
+import javax.swing.JComboBox
+import javax.swing.JSplitPane
 import javax.swing.filechooser.FileNameExtensionFilter
 
 /**
@@ -30,11 +36,14 @@ import javax.swing.filechooser.FileNameExtensionFilter
  *
  * @param project project whose persisted preferences are displayed and edited
  */
-class BaselineConfigurable(private val project: Project) : SearchableConfigurable {
+class BaselineConfigurable(private val project: Project) : SearchableConfigurable, Configurable.NoScroll {
 
     private val controls = linkedMapOf<FormatOption, JCheckBox>()
 
     private var panel: JPanel? = null
+
+    internal var preview: FormatPreview? = null
+        private set
 
     /** Returns the stable identifier registered in `plugin.xml`. */
     override fun getId(): String {
@@ -86,6 +95,10 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
     /** Releases the form so reopening Settings creates fresh components. */
     override fun disposeUIResources() {
 
+        preview?.dispose()
+
+        preview = null
+
         controls.clear()
 
         panel = null
@@ -100,12 +113,14 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
             control.isSelected = option.property.get( options )
 
         }
+
+        preview?.schedule()
     }
 
     /**
-     * Handles formatting preferences with compatibility for the removed generated-source option.
+     * Builds the categorized options form and its disposable Java/Kotlin live preview.
      *
-     * Imported values remain pending in the form until Apply or OK.
+     * Checkbox edits, defaults and imports remain pending until Apply or OK.
      *
      * @author Mohammad ali Riazati
      * @since 1.0.1
@@ -114,17 +129,21 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
 
         panel?.let { return it }
 
-        val content = JPanel()
+        val cards = CardLayout()
 
-        content.layout = BoxLayout(content, BoxLayout.Y_AXIS)
+        val content = JPanel( cards )
 
-        for ( (group, options) in FormatOption.entries.groupBy { it.group } ) {
+        val groups = FormatOption.entries.groupBy { it.group }
+
+        val categories = JComboBox( groups.keys.toTypedArray() )
+
+        for ( (group, options) in groups ) {
 
             val section = JPanel()
 
             section.layout = BoxLayout(section, BoxLayout.Y_AXIS)
 
-            section.border = BorderFactory.createTitledBorder( group )
+            section.border = BorderFactory.createEmptyBorder( SECTION_PADDING, SECTION_PADDING, SECTION_PADDING, SECTION_PADDING )
 
             for (option in options) {
 
@@ -134,11 +153,27 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
 
                 controls[option] = checkbox
 
+                checkbox.addActionListener { preview?.showOption( option ) }
+
                 section.add( checkbox )
 
             }
 
-            content.add( section )
+            val page = JPanel( BorderLayout() )
+
+            page.add( section, BorderLayout.NORTH )
+
+            val scroll = JBScrollPane( page )
+
+            scroll.border = BorderFactory.createEmptyBorder()
+
+            scroll.isWheelScrollingEnabled = true
+
+            scroll.verticalScrollBar.unitIncrement = SCROLL_INCREMENT
+
+            scroll.horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+
+            content.add( scroll, group )
 
         }
 
@@ -146,13 +181,39 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
 
         defaults.addActionListener { display( FormatOptions() ) }
 
-        val result = JPanel( BorderLayout() )
+        val result = SettingsPanel()
 
         result.add(
-            JLabel( "Whole-file Java/Kotlin formatting. Disabled rules use IDE formatting." ), BorderLayout.NORTH
+            JLabel( "Choose a category. Change an option to see its effect." ), BorderLayout.NORTH
         )
 
-        result.add( JScrollPane( content ), BorderLayout.CENTER )
+        categories.addActionListener {
+
+            cards.show( content, categories.selectedItem as String )
+
+            preview?.showCategory( categories.selectedItem as String )
+
+        }
+
+        val preferences = JPanel( BorderLayout() )
+
+        preferences.add( categories, BorderLayout.NORTH )
+
+        preferences.add( content, BorderLayout.CENTER )
+
+        preferences.minimumSize = Dimension( OPTIONS_MIN_WIDTH, MIN_HEIGHT )
+
+        val livePreview = FormatPreview( project ) { formOptions() }
+
+        preview = livePreview
+
+        val split = JSplitPane( JSplitPane.HORIZONTAL_SPLIT, preferences, livePreview.component )
+
+        split.resizeWeight = OPTIONS_WEIGHT
+
+        split.dividerLocation = OPTIONS_WIDTH
+
+        result.add( split, BorderLayout.CENTER )
 
         val actions = JPanel()
 
@@ -192,7 +253,7 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
     }
 
     /**
-     * Handles formatting preferences with compatibility for the removed generated-source option.
+     * Validates a portable profile before updating pending controls and scheduling the preview.
      *
      * Imported values remain pending in the form until Apply or OK.
      *
@@ -265,7 +326,7 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
     }
 
     /**
-     * Handles formatting preferences with compatibility for the removed generated-source option.
+     * Imports a user-selected XML profile and reports validation or I/O failures in the Settings dialog.
      *
      * Imported values remain pending in the form until Apply or OK.
      *
@@ -319,6 +380,13 @@ class BaselineConfigurable(private val project: Project) : SearchableConfigurabl
 
         private const val DEFAULT_PROFILE_NAME = "baseline-settings.xml"
         private const val XML_SUFFIX           = ".xml"
+
+        private const val SCROLL_INCREMENT = 20
+        private const val SECTION_PADDING = 8
+        private const val OPTIONS_MIN_WIDTH = 260
+        private const val OPTIONS_WIDTH = 340
+        private const val MIN_HEIGHT = 180
+        private const val OPTIONS_WEIGHT = 0.4
 
     }
 

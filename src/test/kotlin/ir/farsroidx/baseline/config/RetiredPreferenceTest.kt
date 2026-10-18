@@ -24,9 +24,9 @@ class RetiredPreferenceTest : BasePlatformTestCase() {
 
             assertFalse( exported.contains( "showGeneratedSources" ) )
 
-            assertTrue( exported.contains( "pluginVersion=\"1.0.1\"" ) )
+            assertTrue( exported.contains( "pluginVersion=\"1.0.2\"" ) )
 
-            assertEquals( 51, FormatOption.entries.size )
+            assertEquals( 57, FormatOption.entries.size )
 
         }
 

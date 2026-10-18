@@ -1,78 +1,65 @@
 # Baseline
 
-Baseline adds project-configurable Java/Kotlin formatting to IntelliJ IDEA's standard
-**Reformat Code** action. It is a `PostFormatProcessor`: native language formatting runs first,
-then Baseline applies the enabled custom rules. It does not replace the IDE's formatting model.
+Baseline 1.0.2 adds configurable Java and Kotlin rules to IntelliJ IDEA's **Reformat Code** action.
+It runs after the native formatter and uses each language's editor right margin.
+Requires IntelliJ IDEA build 261 or newer with Java and Kotlin support.
 
 ## Install and use
 
-1. Build with `./gradlew.bat clean test buildPlugin --offline` on the configured Windows development host.
-2. Install `build/distributions/Baseline-1.0.1.zip` using Settings / Plugins / Install Plugin from Disk.
-3. Open **Settings / Editor / Baseline** and choose the project preferences.
-4. Configure each language's right margin under **Editor / Code Style**.
-5. Run **Code / Reformat Code** (`Ctrl+Alt+L`) with no fragment selected.
+1. Install `build/distributions/Baseline-1.0.2.zip` from **Settings / Plugins / Install Plugin from Disk**.
+2. Open **Settings / Editor / Baseline** and choose a category.
+3. Change an option to see its related code highlighted in the live Java/Kotlin preview.
+4. Click **Apply** or **OK**, then run whole-file **Reformat Code** (`Ctrl+Alt+L`).
 
-The 50 original Boolean options default to enabled. Shared-prefix field grouping is an
-additional option, disabled by default. See [the settings reference](docs/settings.md) for
-individual switches, rule interactions and mandatory semantic safeguards.
+The option list and code preview scroll independently. The preview can show the original sample
+or the formatted result. Each option has an explanation; when no layout changes, its related
+example is still highlighted. Preview changes never modify project source files or saved settings.
 
-## Share settings with your team
+## Formatting controls
 
-Open **Settings / Editor / Baseline**, configure the checkboxes and click **Export settings...**.
-Save the portable `baseline-settings.xml` file and share it with your colleague. They use
-**Import settings...**, review the values, then click **Apply** or **OK**.
+- Group and sort eligible fields, separate static fields and align initializer equals signs.
+- Group safe constructor assignments and locals; control assignment blank lines separately.
+- Wrap parameters, call arguments, chains and conditions using the language right margin.
+- Control spaces in single/multiple-argument calls and annotation arrays independently.
+- Place method, parameter, field and class annotations independently.
+- Configure block spacing, cases, Kotlin lambdas and Elvis expressions.
 
-Export includes pending checkbox edits. Import does not save preferences until Apply/OK, and
-invalid profiles leave the form unchanged. The profile includes all Baseline Boolean preferences;
-IntelliJ code-style schemes and Java/Kotlin right margins are configured separately.
+There are 57 Boolean preferences. Shared-prefix field grouping is off by default; the others
+are on. Parameter/argument order and method/constructor declaration order are preserved.
+Only eligible independent field and constructor runs are rearranged.
 
-See [the profile workflow and format](docs/settings.md#export-and-import) for validation,
-compatibility and cancellation details.
+See [settings and common recipes](docs/settings.md) and the [changelog](CHANGELOG.md).
 
-## Examples and release notes
+## Share settings
 
-- [Java example](src/main/resources/JavaSample.txt)
-- [Kotlin example](src/main/resources/KotlinSample.txt)
-- [Release changelog](CHANGELOG.md)
+Use **Export settings...** to save a portable XML profile, including pending checkbox edits.
+A colleague imports it with **Import settings...**, reviews the preview and clicks Apply/OK.
+Profiles contain Baseline preferences only; configure IntelliJ code-style schemes and right
+margins separately. Older profiles remain supported.
 
-Examples are distributed as text resources and are not compiled into sample classes.
+## Format on save and before commit
 
-## Format on save
+Enable **Tools / Actions on Save / Reformat code / Whole file** for Java and Kotlin.
+Baseline uses the existing formatter pipeline; no separate save listener is required.
 
-Open **Settings / Tools / Actions on Save** and enable **Reformat code** for Java and Kotlin.
-Choose **Whole file**. The same native formatter pipeline invokes Baseline, so no separate save
-listener is required. Changed-lines formatting does not activate Baseline's whole-file rules.
+Baseline skips partial selections. Commit checks that reformat changed lines alone do not
+apply all whole-file rules. Use whole-file formatting before committing. Baseline does not
+install a Git push hook or enforce formatting before push.
 
-## Commit and push
+## Development
 
-IntelliJ's **Commit Checks / Reformat code** formats added/modified code only. Baseline deliberately
-skips partial ranges, so this checkbox alone does not guarantee its complete structural rules.
-Use whole-file formatting on save or run whole-file Reformat before committing.
+The build uses JVM 17 and the local IntelliJ installation at `S:\IntelliJ IDEA\idea` with its
+bundled Java/Kotlin plugins. Update that path in `build.gradle.kts` on another host.
+Offline builds require cached dependencies.
 
-For literal mandatory enforcement immediately before **Push**, a separate pre-push integration
-or hook/check is required. This plugin currently adds no Git hook, push handler, commit rewrite
-or standalone command-line formatter. A push-time check should reject unformatted committed
-content rather than silently modify files without creating a corresponding commit.
+```powershell
+.\gradlew.bat clean test buildPlugin --offline
+```
 
-These integration details follow the
-[JetBrains Reformat and rearrange code documentation](https://www.jetbrains.com/help/idea/reformat-and-rearrange-code.html)
-and the [IntelliJ formatting extension documentation](https://plugins.jetbrains.com/docs/intellij/code-formatting.html).
-
-## Development and verification
-
-The current Gradle build targets JVM 17 and uses the local IntelliJ installation at
-`S:\IntelliJ IDEA\idea`, including its bundled Java/Kotlin plugins. Change that path in
-`build.gradle.kts` when using another development host. Offline builds require dependencies
-already present in the Gradle cache.
-
-- `./gradlew.bat test --offline`: PSI regression, repeat-format stability and settings tests.
-- `./gradlew.bat buildPlugin --offline`: installable plugin ZIP.
-- `./gradlew.bat clean test buildPlugin --offline`: fresh tested release build.
-- `build/reports/tests/test/index.html`: test report.
-
-See [the implementation guide](docs/architecture.md) for package responsibilities, pipeline
-ordering, state persistence and the retained method revisions. Source KDoc/Javadoc describes
-the contracts of classes, helpers, samples and tests. Sample values are illustrative fixtures.
+The installable ZIP is written to `build/distributions`; tests are reported under
+`build/reports/tests/test`. See the [implementation guide](docs/architecture.md).
+Approved layouts are included as [Java](src/main/resources/JavaSample.txt) and
+[Kotlin](src/main/resources/KotlinSample.txt) text examples.
 
 ## License
 
